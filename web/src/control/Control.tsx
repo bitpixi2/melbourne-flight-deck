@@ -234,8 +234,8 @@ export function Control() {
             <Slider value={cfg.labelRotationDeg} min={0} max={355} step={5} unit="°"
               onChange={(v) => set({ labelRotationDeg: v })} />
           </Row>
-          <Row label="Radius">
-            <Slider value={cfg.radiusMiles} min={0.5} max={10} step={0.5} unit="mi"
+          <Row label="Radius" hint="wide ranges suit map projection best">
+            <Slider value={cfg.radiusMiles} min={0.5} max={100} step={0.5} unit="mi"
               onChange={(v) => set({ radiusMiles: v })} />
           </Row>
           <Row label="Projection" hint="sky = realistic look-up motion">
