@@ -19,8 +19,7 @@ function fmtIn(ms: number): string {
 }
 
 const FIELD_LABELS: Record<keyof ShowFields, string> = {
-  airline: "Airline",
-  flight: "Flight",
+  name: "Name",
   type: "Type",
   altitude: "Altitude",
   speed: "Speed",
@@ -398,6 +397,15 @@ export function Control() {
                 </button>
               ))}
             </div>
+
+            <Row label="Name display">
+              <Segmented value={cfg.nameDisplay}
+                 options={[
+                   { value: "airline", label: "Airline" },
+                   { value: "flight", label: "Flight number" },
+                 ]}
+                 onChange={(v) => set({ nameDisplay: v })} />
+            </Row>
 
             <Row label="Departing / Arriving display">
               <Segmented value={cfg.locationDisplay}

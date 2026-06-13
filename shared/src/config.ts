@@ -17,6 +17,7 @@ import { SFO_AIRPORT, type Airport } from "./airport.js";
 export type Theme = "ambient" | "telemetry" | "focus";
 export type LabelDensity = "all" | "nearestN" | "nearestOnly";
 export type DataSource = "radio" | "api";
+export type NameDisplay = "airline" | "flight";
 export type LocationDisplay = "name" | "iata";
 /** Ground-speed display unit. ADS-B reports knots; the rest are converted. */
 export type SpeedUnit = "kt" | "mph" | "kmh";
@@ -50,8 +51,7 @@ export interface LocationProfile {
 }
 
 export interface ShowFields {
-  airline: boolean;
-  flight: boolean;
+  name: boolean;
   type: boolean;
   altitude: boolean;
   speed: boolean;
@@ -280,6 +280,7 @@ export interface Config {
   labelDensity: LabelDensity;
   nearestN: number;
   showFields: ShowFields;
+  nameDisplay: NameDisplay;
   locationDisplay: LocationDisplay;
   /** Unit for the speed shown on labels (ADS-B is knots). */
   speedUnit: SpeedUnit;

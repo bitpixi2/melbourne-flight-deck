@@ -105,7 +105,12 @@ function altRamp(alt: number): [number, number, number] {
 export function labelLines(cfg: Config, ac: Aircraft): { text: string; kind: "title" | "sub" }[] {
   const f = cfg.showFields;
   const out: { text: string; kind: "title" | "sub" }[] = [];
-  const title = f.flight ? ac.flight ?? ac.hex.toUpperCase() : f.airline ? ac.airline : null;
+
+  const title = f.name ?
+      cfg.nameDisplay === "flight" ?
+        ac.flight ?? ac.hex.toUpperCase() :
+        ac.airline
+    : null;
   if (title) out.push({ text: title, kind: "title" });
 
   const sub: string[] = [];
