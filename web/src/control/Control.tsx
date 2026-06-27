@@ -565,7 +565,7 @@ export function Control() {
             <Toggle value={cfg.showPlanets} onChange={(v) => set({ showPlanets: v })} />
           </Row>
           <Row label="Sky time" hint={skyTimeLabel(cfg.skyTimeOffsetMin)}>
-            <Slider id="skyTimeOffsetMin" value={cfg.skyTimeOffsetMin} min={-720} max={720} step={5} unit="m"
+            <Slider id="skyTimeOffsetMin" value={cfg.skyTimeOffsetMin} min={-720} max={720} step={5} unit="min"
               onChange={(v) => set({ skyTimeOffsetMin: v })} />
           </Row>
           <div className="chips">
