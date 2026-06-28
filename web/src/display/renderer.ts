@@ -1228,6 +1228,9 @@ export class Renderer {
       ctx.textBaseline = "top";
       ctx.shadowColor = "rgba(0,0,0,0.9)";
       ctx.shadowBlur = 6;
+      ctx.strokeStyle = rgba(hexToRgb(cfg.palette.bg), a);
+      ctx.lineWidth = 3;
+      ctx.lineJoin = "round";
 
       let y = box.y;
       let lastLineKind;
@@ -1253,6 +1256,7 @@ export class Renderer {
         // after drawing the title we need a to draw further down for the following line (due to the larger font size of the title)
         y += lastLineKind === "title" ? lh + 2 : lh;
 
+        ctx.strokeText(ln.text, box.x, y);
         ctx.fillText(ln.text, box.x, y);
 
         lastLineKind = ln.kind;
@@ -1277,23 +1281,31 @@ export class Renderer {
   private drawDetailPanelText(cfg: Config, v: Visible, ac: Aircraft, x: number, y: number): void {
     const ctx = this.ctx;
     ctx.save();
+
     ctx.shadowColor = "rgba(0,0,0,0.9)";
     ctx.shadowBlur = 10;
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
+    ctx.strokeStyle = rgba(hexToRgb(cfg.palette.bg), v.alpha);
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
     try {
       ctx.letterSpacing = "2px";
     } catch {
       /* noop */
     }
+
+    const flightText = ac.flight ?? ac.hex.toUpperCase();
     ctx.font = `300 34px ${cfg.fonts.label}`;
     ctx.fillStyle = rgba([245, 247, 255], v.alpha);
-    ctx.fillText(ac.flight ?? ac.hex.toUpperCase(), x, y);
+    ctx.strokeText(flightText, x, y);
+    ctx.fillText(flightText, x, y);
     try {
       ctx.letterSpacing = "0.5px";
     } catch {
       /* noop */
     }
+
     ctx.font = `400 15px ${cfg.fonts.label}`;
     ctx.fillStyle = rgba(hexToRgb(cfg.palette.text), 0.85 * v.alpha);
     const dpAlt = ac.altBaro ?? ac.altGeom;
@@ -1304,12 +1316,16 @@ export class Renderer {
       ac.gs != null ? formatSpeed(ac.gs, cfg.speedUnit) : null,
       ac.origin && ac.destination && routePlausible(ac, cfg) ? `${ac.origin} → ${ac.destination}` : null,
     ].filter(Boolean);
-    ctx.fillText(bits.join("    ·    "), x, y + 26);
+
+    const detailText = bits.join("    ·    ");
+    ctx.strokeText(detailText, x, y + 26);
+    ctx.fillText(detailText, x, y + 26);
     try {
       ctx.letterSpacing = "0px";
     } catch {
       /* noop */
     }
+
     ctx.restore();
   }
 }
