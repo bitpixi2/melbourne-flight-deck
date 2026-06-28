@@ -55,6 +55,29 @@ const PLANET_COLORS: Record<string, string> = {
   Mercury: "200,192,176",
 };
 
+/** Screen radius for a planet glyph from its magnitude. */
+function planetDrawSize(mag: number): number {
+  return Math.max(1.6, Math.min(4, 3 - mag * 0.5));
+}
+
+/** Screen radius for a star glyph from its magnitude. */
+function starDrawSize(mag: number): number {
+  return Math.max(0.6, 2.6 - mag * 0.7);
+}
+
+/** Gap between sky-object edge and label anchor, px. */
+const SKY_LABEL_GAP = 4;
+
+interface SkyLabelEntry {
+  p: Point;
+  name: string;
+  color: string;
+  size: number;
+  alpha: number;
+  /** Lower = brighter / more important; gets the preferred slot first. */
+  priority: number;
+}
+
 interface Sample {
   t: number; // performance.now() at arrival
   m: Meters;
@@ -670,6 +693,7 @@ export class Renderer {
   private drawSky(cfg: Config, proj: ProjOpts): void {
     const ctx = this.ctx;
     const b = cfg.brightness;
+    const skyLabels: SkyLabelEntry[] = [];
 
     // Asterism lines (faint) — need star screen points by id.
     if (cfg.showStars && this.sky.stars.length) {
@@ -696,7 +720,7 @@ export class Renderer {
       for (const s of this.sky.stars) {
         const p = pts.get(s.id!)!;
         const mag = s.mag ?? 2;
-        const size = Math.max(0.6, 2.6 - mag * 0.7);
+        const size = starDrawSize(mag);
         const tw = 0.78 + 0.22 * Math.sin(this.frameT * 3 + s.az);
         const a = clamp01((2.8 - mag) / 3) * b * tw;
         ctx.beginPath();
@@ -708,7 +732,16 @@ export class Renderer {
         }
         ctx.fill();
         ctx.shadowBlur = 0;
-        if (mag < cfg.starLabelMagLimit && s.name) this.skyLabel(p, s.name, cfg, 0.5 * b);
+        if (mag < cfg.starLabelMagLimit && s.name) {
+          skyLabels.push({
+            p,
+            name: s.name,
+            color: "#AEB6C6",
+            size,
+            alpha: 0.5 * b,
+            priority: mag,
+          });
+        }
       }
     }
 
@@ -724,7 +757,7 @@ export class Renderer {
         const p = this.projectSky(pl.az, pl.alt, cfg, proj);
         const mag = pl.mag ?? 1;
         // Brighter planets (lower magnitude) read larger, with a soft glow.
-        const size = Math.max(1.6, Math.min(4, 3 - mag * 0.5));
+        const size = planetDrawSize(mag);
         const col = PLANET_COLORS[pl.name ?? ""] ?? "230,224,205";
         ctx.beginPath();
         ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
@@ -736,16 +769,25 @@ export class Renderer {
         ctx.fill();
         ctx.shadowBlur = 0;
         if (pl.name) {
-          this.skyLabel({ x: p.x + 6, y: p.y - 6 }, pl.name, cfg, 0.7 * b, `rgb(${col})`);
+          skyLabels.push({
+            p,
+            name: pl.name,
+            color: `rgb(${col})`,
+            size,
+            alpha: 0.7 * b,
+            priority: mag,
+          });
         }
       }
     }
+
     if (cfg.showSatellites && this.sky.sats.length) {
       for (const sat of this.sky.sats) {
         const p = this.projectSky(sat.az, sat.alt, cfg, proj);
         const iss = sat.kind === "iss";
+        const size = iss ? 3 : 1.6;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, iss ? 3 : 1.6, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         if (iss) {
           ctx.fillStyle = `rgba(140,255,214,${0.95 * b})`;
           ctx.shadowColor = `rgba(140,255,214,${b})`;
@@ -756,12 +798,28 @@ export class Renderer {
         ctx.fill();
         ctx.shadowBlur = 0;
         if (iss) {
-          this.skyLabel({ x: p.x + 6, y: p.y - 6 }, "ISS", cfg, 0.9 * b, "#8CFFD6");
+          skyLabels.push({
+            p,
+            name: "ISS",
+            color: "#8CFFD6",
+            size,
+            alpha: 0.9 * b,
+            priority: -1,
+          });
         } else if (cfg.satelliteLabels && sat.name) {
-          this.skyLabel({ x: p.x + 5, y: p.y - 5 }, sat.name, cfg, 0.6 * b);
+          skyLabels.push({
+            p,
+            name: sat.name,
+            color: "#AEB6C6",
+            size,
+            alpha: 0.6 * b,
+            priority: 5,
+          });
         }
       }
     }
+
+    if (skyLabels.length) this.placeSkyLabels(skyLabels, cfg);
   }
 
   private drawSun(p: Point, b: number): void {
@@ -812,21 +870,29 @@ export class Renderer {
     ctx.restore();
   }
 
-  private skyLabel(p: Point, text: string, cfg: Config, alpha: number, color = "#AEB6C6"): void {
+  private skyLabel(
+    p: Point,
+    text: string,
+    cfg: Config,
+    alpha: number,
+    color = "#AEB6C6",
+    align: CanvasTextAlign = "left",
+  ): void {
     const ctx = this.ctx;
     this.withLabelRotation(cfg, p.x, p.y, () => {
       ctx.save();
       ctx.font = `300 10px ${cfg.fonts.label}`;
       ctx.fillStyle = color;
       ctx.globalAlpha = alpha;
-      ctx.textAlign = "left";
+      ctx.textAlign = align;
       ctx.textBaseline = "middle";
       try {
         ctx.letterSpacing = "1px";
       } catch {
         /* noop */
       }
-      ctx.fillText(text, p.x + 5, p.y);
+      const tx = align === "right" ? p.x - 5 : align === "center" ? p.x : p.x + 5;
+      ctx.fillText(text, tx, p.y);
       try {
         ctx.letterSpacing = "0px";
       } catch {
@@ -834,6 +900,100 @@ export class Renderer {
       }
       ctx.restore();
     });
+  }
+
+  private measureSkyLabel(text: string, cfg: Config): { w: number; h: number } {
+    const ctx = this.ctx;
+    ctx.font = `300 10px ${cfg.fonts.label}`;
+    try {
+      ctx.letterSpacing = "1px";
+    } catch {
+      /* noop */
+    }
+    const w = ctx.measureText(text).width;
+    try {
+      ctx.letterSpacing = "0px";
+    } catch {
+      /* noop */
+    }
+    return { w: w + 2, h: 12 };
+  }
+
+  private skyLabelBox(
+    anchor: Point,
+    w: number,
+    h: number,
+    align: CanvasTextAlign,
+  ): { x: number; y: number; w: number; h: number } {
+    let x: number;
+    if (align === "right") x = anchor.x - 5 - w;
+    else if (align === "center") x = anchor.x - w / 2;
+    else x = anchor.x + 5;
+    return { x, y: anchor.y - h / 2, w, h };
+  }
+
+  /** Candidate label positions at a fixed gap from the object edge. */
+  private skyLabelSlots(
+    p: Point,
+    size: number,
+    h: number,
+  ): { anchor: Point; align: CanvasTextAlign }[] {
+    const g = SKY_LABEL_GAP;
+    const r = size + g;
+    const d = r * Math.SQRT1_2;
+    const v = r + h / 2;
+    const far = r + h + g;
+    const farD = far * Math.SQRT1_2;
+
+    return [
+      { anchor: { x: p.x + d, y: p.y - d }, align: "left" },
+      { anchor: { x: p.x + d, y: p.y + d }, align: "left" },
+      { anchor: { x: p.x - d, y: p.y - d }, align: "right" },
+      { anchor: { x: p.x - d, y: p.y + d }, align: "right" },
+      { anchor: { x: p.x, y: p.y - v }, align: "center" },
+      { anchor: { x: p.x, y: p.y + v }, align: "center" },
+      { anchor: { x: p.x + farD, y: p.y - farD }, align: "left" },
+      { anchor: { x: p.x - farD, y: p.y - farD }, align: "right" },
+    ];
+  }
+
+  /** Place sky-object labels so they never overlap each other. */
+  private placeSkyLabels(entries: SkyLabelEntry[], cfg: Config): void {
+    const placed: { x: number; y: number; w: number; h: number }[] = [];
+    const onScreen = (b: { x: number; y: number; w: number; h: number }) =>
+      b.x >= 6 && b.x + b.w <= this.w - 6 && b.y >= 6 && b.y + b.h <= this.h - 6;
+
+    const sorted = [...entries].sort((a, b) => a.priority - b.priority);
+
+    for (const entry of sorted) {
+      const { w, h } = this.measureSkyLabel(entry.name, cfg);
+      type Slot = { anchor: Point; align: CanvasTextAlign };
+      const slots: Slot[] = this.skyLabelSlots(entry.p, entry.size, h);
+
+      let chosen: Slot | null = null;
+      for (const slot of slots) {
+        const box = this.skyLabelBox(slot.anchor, w, h, slot.align);
+        if (onScreen(box) && !this.collides(box, placed)) {
+          chosen = slot;
+          placed.push(box);
+          break;
+        }
+      }
+      if (!chosen) {
+        let slot = slots[0];
+        let box = this.skyLabelBox(slot.anchor, w, h, slot.align);
+        for (let k = 0; k < 10 && (this.collides(box, placed) || !onScreen(box)); k++) {
+          slot = {
+            anchor: { x: slot.anchor.x, y: slot.anchor.y - (h + SKY_LABEL_GAP) },
+            align: slot.align,
+          };
+          box = this.skyLabelBox(slot.anchor, w, h, slot.align);
+        }
+        chosen = slot;
+        placed.push(box);
+      }
+      this.skyLabel(chosen.anchor, entry.name, cfg, entry.alpha, entry.color, chosen.align);
+    }
   }
 
   // --- window to elsewhere: faint arc toward destination ---
@@ -993,9 +1153,12 @@ export class Renderer {
     return { w: w + 2, lh, h: lines.length * lh };
   }
 
-  private collides(b: { x: number; y: number; w: number; h: number }): boolean {
+  private collides(
+    b: { x: number; y: number; w: number; h: number },
+    boxes: { x: number; y: number; w: number; h: number }[] = this.placedBoxes,
+  ): boolean {
     const pad = 3;
-    for (const p of this.placedBoxes) {
+    for (const p of boxes) {
       if (
         b.x - pad < p.x + p.w &&
         b.x + b.w + pad > p.x &&
