@@ -7,7 +7,7 @@ import {
   formatDistance,
 } from "@shared/index.js";
 import { useStream } from "../lib/useStream.js";
-import { useAmbientMode } from "../lib/useAmbientMode.js";
+import { projectorRequested, useAmbientMode } from "../lib/useAmbientMode.js";
 import { FlightDeck, type DeckView } from "./FlightDeck.js";
 import { Renderer } from "./renderer.js";
 
@@ -38,6 +38,40 @@ const RIDDELLS_SKY_CONFIG: Config = {
   projectionMode: "sky",
   showAirport: false,
 };
+const PROJECTOR_LABEL_SECONDS = 12;
+const PROJECTOR_CONFIG: Config = {
+  ...RIDDELLS_AIRSPACE_CONFIG,
+  mirrorX: true,
+  showAirport: false,
+  rangeRings: false,
+  compass: false,
+  showDestArc: false,
+  showRouteDetail: false,
+  glyphSizePx: 28,
+  labelDensity: "nearestOnly",
+  nearestN: 1,
+  showFields: {
+    name: true,
+    type: true,
+    altitude: true,
+    speed: true,
+    verticalRate: false,
+    destination: false,
+    registration: false,
+  },
+};
+const PROJECTOR_QUIET_CONFIG: Config = {
+  ...PROJECTOR_CONFIG,
+  showFields: {
+    name: false,
+    type: false,
+    altitude: false,
+    speed: false,
+    verticalRate: false,
+    destination: false,
+    registration: false,
+  },
+};
 
 function requestedDeckView(): DeckView {
   return new URLSearchParams(window.location.search).get("view") === "sky" ? "sky" : "runway";
@@ -46,7 +80,9 @@ function requestedDeckView(): DeckView {
 export function Display() {
   const { state, conn } = useStream("display");
   const ambient = useAmbientMode();
+  const projectorMode = projectorRequested();
   const [deckView, setDeckView] = useState<DeckView>(requestedDeckView);
+  const [projectorLabelsVisible, setProjectorLabelsVisible] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const aircraftRef = useRef(state.aircraft);
@@ -54,9 +90,11 @@ export function Display() {
 
   const forcedView = new URLSearchParams(window.location.search).has("view");
   const personalDeck = state.hosted || forcedView;
-  const displayConfig = personalDeck
-    ? deckView === "sky" ? RIDDELLS_SKY_CONFIG : RIDDELLS_AIRSPACE_CONFIG
-    : (state.config ?? DEFAULT_CONFIG);
+  const displayConfig = projectorMode
+    ? (projectorLabelsVisible ? PROJECTOR_CONFIG : PROJECTOR_QUIET_CONFIG)
+    : personalDeck
+      ? deckView === "sky" ? RIDDELLS_SKY_CONFIG : RIDDELLS_AIRSPACE_CONFIG
+      : (state.config ?? DEFAULT_CONFIG);
 
   // Keep the latest config in a ref so the RAF loop always reads fresh values.
   const configRef = useRef<Config>(displayConfig);
@@ -69,13 +107,25 @@ export function Display() {
   // Hosted TVs alternate between the airport plan and the observer's true
   // look-up sky. Changing the view manually restarts the 45-second dwell.
   useEffect(() => {
-    if (!state.hosted) return;
+    if (!state.hosted || projectorMode) return;
     const timer = setTimeout(
       () => setDeckView((current) => current === "runway" ? "sky" : "runway"),
       VIEW_SECONDS * 1000,
     );
     return () => clearTimeout(timer);
-  }, [deckView, state.hosted]);
+  }, [deckView, projectorMode, state.hosted]);
+
+  // Keep the ceiling uncluttered: only the nearest aircraft's compact label
+  // appears, alternating between twelve seconds visible and twelve quiet.
+  useEffect(() => {
+    if (!projectorMode) return;
+    setProjectorLabelsVisible(true);
+    const timer = window.setInterval(
+      () => setProjectorLabelsVisible((visible) => !visible),
+      PROJECTOR_LABEL_SECONDS * 1000,
+    );
+    return () => window.clearInterval(timer);
+  }, [projectorMode]);
 
   // Create renderer once.
   useEffect(() => {
@@ -152,19 +202,27 @@ export function Display() {
 
   const cfg = displayConfig;
   return (
-    <div className="display-root">
-      <FlightDeck
-        canvasRef={canvasRef}
-        state={state}
-        view={personalDeck ? deckView : cfg.projectionMode === "sky" ? "sky" : "runway"}
-        autoSwitching={state.hosted}
-        fullscreenActive={ambient.fullscreen}
-        onToggleFullscreen={ambient.toggle}
-        onSelectView={personalDeck
-          ? (view) => setDeckView(view)
-          : undefined}
-      />
-      {cfg.showHud && (
+    <div className={`display-root${projectorMode ? " projector-mode" : ""}`}>
+      {projectorMode ? (
+        <canvas
+          ref={canvasRef}
+          className="display-canvas projector-canvas"
+          aria-label="Live overhead aircraft projector view"
+        />
+      ) : (
+        <FlightDeck
+          canvasRef={canvasRef}
+          state={state}
+          view={personalDeck ? deckView : cfg.projectionMode === "sky" ? "sky" : "runway"}
+          autoSwitching={state.hosted}
+          fullscreenActive={ambient.fullscreen}
+          onToggleFullscreen={ambient.toggle}
+          onSelectView={personalDeck
+            ? (view) => setDeckView(view)
+            : undefined}
+        />
+      )}
+      {!projectorMode && cfg.showHud && (
         <div className="hud">
           <div className={`hud-dot ${state.connected ? "ok" : "bad"}`} />
           <span>
@@ -174,7 +232,7 @@ export function Display() {
           </span>
         </div>
       )}
-      {!state.connected && <div className="reconnect">connecting…</div>}
+      {!projectorMode && !state.connected && <div className="reconnect">connecting…</div>}
     </div>
   );
 }

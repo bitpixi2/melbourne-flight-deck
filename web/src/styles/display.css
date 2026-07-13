@@ -37,6 +37,22 @@ body,
     linear-gradient(150deg, #010406 0%, #03090d 52%, #020609 100%);
 }
 
+.display-root.projector-mode {
+  display: block;
+  padding: 0;
+  background: #000;
+  cursor: none;
+}
+
+.projector-mode,
+.projector-mode * {
+  cursor: none !important;
+}
+
+.projector-canvas {
+  background: #000;
+}
+
 .deck-topbar {
   min-width: 0;
   display: flex;

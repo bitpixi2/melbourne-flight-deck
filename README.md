@@ -49,6 +49,18 @@ or a ceiling-filling image from a roughly $100 vertical projector.
 The public display uses only an approximate viewpoint in Victoria. It does not
 show or store a household name, street address, or house-level coordinate.
 
+### Minimal ceiling projector
+
+Open `/?kiosk=2` for the separate projector presentation. It keeps only the
+full-screen overhead aircraft field, glyphs, and trails; the nearest aircraft's
+callsign, type, altitude, and speed appear for 12 seconds, then the ceiling goes
+label-free for 12 seconds. There are no dashboard panels or visible cursor.
+
+Kiosk 2 requests a screen wake lock immediately and enters fullscreen on its
+first pointer gesture. A deployment built with `VITE_DEFAULT_KIOSK=2` opens this
+projector presentation by default, which is how the separate projector website
+is published.
+
 ## Live data
 
 | Information | Source |
@@ -74,6 +86,7 @@ DATA_SOURCE=api corepack pnpm start
 Then open:
 
 - Display: `http://localhost:3000/?kiosk=1`
+- Minimal projector: `http://localhost:3000/?kiosk=2`
 - Fixed airspace view: `http://localhost:3000/?view=runway`
 - Fixed looking-up view: `http://localhost:3000/?view=sky`
 

@@ -6,14 +6,27 @@
 //
 // `?kiosk=1` in the URL auto-engages the wake lock on load. Fullscreen stays
 // behind the visible Expand button because browsers require a user gesture.
+// `?kiosk=2` is the minimal projector mode: it also enters fullscreen on the
+// first pointer gesture because that surface deliberately has no controls.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Whether this URL requested kiosk/ambient mode (`?kiosk=1` or `?kiosk`). */
+function requestedKiosk(): string | null {
+  const explicit = new URLSearchParams(window.location.search).get("kiosk");
+  return explicit ?? import.meta.env.VITE_DEFAULT_KIOSK ?? null;
+}
+
+/** Whether this URL or build requested either kiosk display mode. */
 export function kioskRequested(): boolean {
   if (typeof window === "undefined") return false;
-  const v = new URLSearchParams(window.location.search).get("kiosk");
-  return v === "" || v === "1" || v === "true";
+  const v = requestedKiosk();
+  return v === "" || v === "1" || v === "2" || v === "true";
+}
+
+/** Minimal ceiling-projector mode (`?kiosk=2` or a kiosk-2 build). */
+export function projectorRequested(): boolean {
+  if (typeof window === "undefined") return false;
+  return requestedKiosk() === "2";
 }
 
 type FsElement = HTMLElement & {
@@ -150,13 +163,21 @@ export function useAmbientMode(): AmbientMode {
     };
   }, [active, releaseLock]);
 
-  // `?kiosk=1`: grab the wake lock immediately. The dedicated Expand button
-  // handles fullscreen without competing with a page-wide gesture listener.
+  // Both kiosk modes grab the wake lock immediately. Kiosk 1 has a dedicated
+  // button; control-free kiosk 2 uses the first pointer gesture for fullscreen.
   useEffect(() => {
     if (!kioskRequested()) return;
     wantLockRef.current = true;
     setActive(true);
     void acquireLock();
+    if (!projectorRequested()) return;
+
+    const onGesture = () => {
+      void requestFullscreen().then(() => setFullscreen(!!fullscreenElement()));
+      window.removeEventListener("pointerdown", onGesture);
+    };
+    window.addEventListener("pointerdown", onGesture);
+    return () => window.removeEventListener("pointerdown", onGesture);
   }, [acquireLock]);
 
   // Release the lock if the component unmounts while held.
