@@ -44,6 +44,8 @@ interface FlightDeckProps {
   state: StreamState;
   view: DeckView;
   autoSwitching: boolean;
+  fullscreenActive: boolean;
+  onToggleFullscreen: () => void;
   onSelectView?: (view: DeckView) => void;
 }
 
@@ -100,6 +102,8 @@ export function FlightDeck({
   state,
   view,
   autoSwitching,
+  fullscreenActive,
+  onToggleFullscreen,
   onSelectView,
 }: FlightDeckProps) {
   const [clock, setClock] = useState(() => Date.now());
@@ -137,7 +141,6 @@ export function FlightDeck({
     ? airborneFlights.find(({ aircraft }) => aircraft.hex === selectedHex) ?? closest
     : closest;
   const isSelected = selectedHex != null && selectedFlight?.aircraft.hex === selectedHex;
-  const feedAgeSec = state.now ? Math.max(0, Math.round((clock - state.now) / 1000)) : null;
   const feedLive = state.connected && (state.status?.ok ?? true);
   const currentWeather = weather?.current;
   const condition = currentWeather
@@ -166,9 +169,6 @@ export function FlightDeck({
             <time dateTime={new Date(clock).toISOString()}>{MELBOURNE_TIME.format(clock)}</time>
             <span>{MELBOURNE_DATE.format(clock)}</span>
           </div>
-          <span className={`feed-badge ${feedLive ? "is-live" : "is-offline"}`}>
-            <i aria-hidden="true" /> {feedLive ? `Feed connected${feedAgeSec != null ? ` · ${feedAgeSec}s` : ""}` : "Feed reconnecting"}
-          </span>
         </div>
       </header>
 
@@ -177,39 +177,46 @@ export function FlightDeck({
           <canvas ref={canvasRef} className="display-canvas" />
           <div className="radar-heading">
             <div>
-              <strong>{view === "sky" ? "Looking up · Brenton's Home" : "Home-centred airspace · 50 km"}</strong>
+              <strong>{view === "sky" ? "Looking up · Local sky" : "Home-centred airspace · 70 km"}</strong>
               <span>{view === "sky" ? "Live sky positions and elevation" : "Live positions · refreshed every 3 seconds"}</span>
             </div>
-            {onSelectView && (
-              <div className="view-control">
-                <div className="view-switch" role="group" aria-label="Display view">
-                  <button
-                    type="button"
-                    className={view === "runway" ? "is-active" : ""}
-                    aria-pressed={view === "runway"}
-                    onClick={() => onSelectView("runway")}
-                  >
-                    <i aria-hidden="true">◎</i> Airspace
-                  </button>
-                  <button
-                    type="button"
-                    className={view === "sky" ? "is-active" : ""}
-                    aria-pressed={view === "sky"}
-                    onClick={() => onSelectView("sky")}
-                  >
-                    <i aria-hidden="true">⌃</i> Look up
-                  </button>
+            <div className="radar-controls">
+              {onSelectView && (
+                <div className="view-control">
+                  <div className="view-switch" role="group" aria-label="Display view">
+                    <button
+                      type="button"
+                      className={view === "runway" ? "is-active" : ""}
+                      aria-pressed={view === "runway"}
+                      onClick={() => onSelectView("runway")}
+                    >
+                      <i aria-hidden="true">◎</i> Airspace
+                    </button>
+                    <button
+                      type="button"
+                      className={view === "sky" ? "is-active" : ""}
+                      aria-pressed={view === "sky"}
+                      onClick={() => onSelectView("sky")}
+                    >
+                      <i aria-hidden="true">⌃</i> Look up
+                    </button>
+                  </div>
+                  {autoSwitching && <small>Auto-switches every 45s</small>}
                 </div>
-                {autoSwitching && <small>Auto-switches every 45s</small>}
-              </div>
-            )}
-          </div>
-          {view === "runway" && (
-            <div className="home-marker" aria-label="Approximate Brenton's Home viewpoint">
-              <i aria-hidden="true" />
-              <span>Brenton's Home</span>
+              )}
+              <button
+                type="button"
+                className={`expand-button ${fullscreenActive ? "is-active" : ""}`}
+                aria-label={fullscreenActive ? "Exit full screen" : "Expand flight deck to full screen"}
+                aria-pressed={fullscreenActive}
+                onClick={onToggleFullscreen}
+                title={fullscreenActive ? "Exit full screen (f)" : "Expand to full screen and keep the display awake (f)"}
+              >
+                <i aria-hidden="true">{fullscreenActive ? "↙" : "↗"}</i>
+                {fullscreenActive ? "Exit" : "Expand"}
+              </button>
             </div>
-          )}
+          </div>
           <div className="radar-badges" aria-label="Current map context">
             {currentWeather && (
               <span>Home wind · {windDirection(currentWeather.windDirectionDeg)} {Math.round(currentWeather.windKt)} kt</span>
@@ -220,6 +227,38 @@ export function FlightDeck({
         </section>
 
         <aside className="right-rail" aria-label="Live aircraft and weather">
+          <section className="weather-card" aria-label="Live local weather in Victoria">
+            <div className="weather-heading">
+              <div>
+                <span>Home weather</span>
+                <small>{currentWeather ? `Updated ${observedTime(currentWeather.observedAt)}` : "Live conditions"}</small>
+              </div>
+              <b className={weatherUnavailable ? "is-offline" : "is-live"}>
+                <i aria-hidden="true" /> {weatherUnavailable ? "Unavailable" : "Live"}
+              </b>
+            </div>
+            {currentWeather && condition ? (
+              <>
+                <div className="weather-now">
+                  <WeatherGlyph kind={condition.kind} />
+                  <div>
+                    <strong>{Math.round(currentWeather.temperatureC)}°</strong>
+                    <span>{condition.label}</span>
+                    <small>Feels {Math.round(currentWeather.apparentC)}° · {Math.round(currentWeather.cloudPct)}% cloud</small>
+                  </div>
+                </div>
+                <dl className="weather-metrics">
+                  <div><dt>Wind</dt><dd>{windDirection(currentWeather.windDirectionDeg)} {Math.round(currentWeather.windKt)} <small>kt</small></dd></div>
+                  <div><dt>Humidity</dt><dd>{Math.round(currentWeather.humidityPct)}<small>%</small></dd></div>
+                  <div><dt>Rain</dt><dd>{currentWeather.precipitationMm.toFixed(1)} <small>mm</small></dd></div>
+                  <div><dt>Pressure</dt><dd>{Math.round(currentWeather.pressureHpa)} <small>hPa</small></dd></div>
+                </dl>
+              </>
+            ) : (
+              <div className="weather-loading">{weatherUnavailable ? "Weather feed unavailable" : "Loading live weather…"}</div>
+            )}
+          </section>
+
           <section className="closest-card" aria-label={isSelected ? "Selected live aircraft" : "Closest live aircraft"}>
             {selectedFlight && selectedAircraft ? (
               <>
@@ -283,37 +322,6 @@ export function FlightDeck({
             )}
           </section>
 
-          <section className="weather-card" aria-label="Live weather at Brenton's Home">
-            <div className="weather-heading">
-              <div>
-                <span>Home weather</span>
-                <small>{currentWeather ? `Updated ${observedTime(currentWeather.observedAt)}` : "Live conditions"}</small>
-              </div>
-              <b className={weatherUnavailable ? "is-offline" : "is-live"}>
-                <i aria-hidden="true" /> {weatherUnavailable ? "Unavailable" : "Live"}
-              </b>
-            </div>
-            {currentWeather && condition ? (
-              <>
-                <div className="weather-now">
-                  <WeatherGlyph kind={condition.kind} />
-                  <div>
-                    <strong>{Math.round(currentWeather.temperatureC)}°</strong>
-                    <span>{condition.label}</span>
-                    <small>Feels {Math.round(currentWeather.apparentC)}° · {Math.round(currentWeather.cloudPct)}% cloud</small>
-                  </div>
-                </div>
-                <dl className="weather-metrics">
-                  <div><dt>Wind</dt><dd>{windDirection(currentWeather.windDirectionDeg)} {Math.round(currentWeather.windKt)} <small>kt</small></dd></div>
-                  <div><dt>Humidity</dt><dd>{Math.round(currentWeather.humidityPct)}<small>%</small></dd></div>
-                  <div><dt>Rain</dt><dd>{currentWeather.precipitationMm.toFixed(1)} <small>mm</small></dd></div>
-                  <div><dt>Pressure</dt><dd>{Math.round(currentWeather.pressureHpa)} <small>hPa</small></dd></div>
-                </dl>
-              </>
-            ) : (
-              <div className="weather-loading">{weatherUnavailable ? "Weather feed unavailable" : "Loading live weather…"}</div>
-            )}
-          </section>
         </aside>
       </main>
 
@@ -347,7 +355,7 @@ export function FlightDeck({
               </button>
             );
           }) : (
-            <div className="strip-idle">Aircraft tiles will appear here when traffic enters the 50 km view.</div>
+            <div className="strip-idle">Aircraft tiles will appear here when traffic enters the 70 km view.</div>
           )}
         </div>
       </section>

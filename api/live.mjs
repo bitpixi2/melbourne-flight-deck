@@ -6,7 +6,8 @@
 // sky plot without publishing a household or street-level position.
 const CENTER_LAT = -37.4587733;
 const CENTER_LON = 144.6776503;
-const API_RADIUS_NM = 27;
+// 70 km, rounded to the whole nautical-mile radius accepted by the feed.
+const API_RADIUS_NM = 38;
 const UPSTREAM = `https://api.airplanes.live/v2/point/${CENTER_LAT}/${CENTER_LON}/${API_RADIUS_NM}`;
 
 function distanceMiles(lat1, lon1, lat2, lon2) {

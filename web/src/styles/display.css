@@ -77,15 +77,13 @@ body,
   white-space: nowrap;
 }
 
-.deck-live,
-.feed-badge {
+.deck-live {
   display: inline-flex;
   align-items: center;
   gap: 7px;
 }
 
-.deck-live i,
-.feed-badge i {
+.deck-live i {
   width: 7px;
   height: 7px;
   flex: none;
@@ -128,17 +126,6 @@ body,
   font: 600 clamp(8px, 0.58vw, 11px)/1 "JetBrains Mono", ui-monospace, monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.feed-badge {
-  padding: 11px 14px;
-  border: 1px solid currentColor;
-  border-radius: 6px;
-  background: rgba(6, 27, 25, 0.65);
-  font: 700 clamp(8px, 0.58vw, 11px)/1 "JetBrains Mono", ui-monospace, monospace;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .deck-main-grid {
@@ -219,6 +206,13 @@ body,
   font: 500 clamp(8px, 0.52vw, 10px)/1.35 "JetBrains Mono", ui-monospace, monospace;
 }
 
+.radar-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: auto;
+}
+
 .view-control {
   display: flex;
   flex-direction: column;
@@ -281,36 +275,42 @@ body,
   text-transform: uppercase;
 }
 
-.home-marker {
-  position: absolute;
-  z-index: 3;
-  top: 50%;
-  left: 50%;
+.expand-button {
   display: flex;
+  min-height: 44px;
   align-items: center;
-  gap: 9px;
-  transform: translate(-11px, -50%);
-  pointer-events: none;
-}
-
-.home-marker i {
-  width: 17px;
-  height: 17px;
-  flex: none;
-  border: 3px solid #88ffd0;
-  border-radius: 50%;
-  background: rgba(116, 244, 189, 0.25);
-  box-shadow: 0 0 18px rgba(116, 244, 189, 0.9);
-}
-
-.home-marker span {
-  padding: 6px 8px;
-  color: #91ffd1;
-  background: rgba(2, 23, 21, 0.88);
-  border: 1px solid rgba(116, 244, 189, 0.45);
-  border-radius: 4px;
-  font: 700 clamp(8px, 0.54vw, 10px)/1 "JetBrains Mono", ui-monospace, monospace;
+  gap: 7px;
+  padding: 8px 12px;
+  color: #a7c6ce;
+  background: rgba(3, 19, 24, 0.92);
+  border: 1px solid rgba(76, 207, 225, 0.42);
+  border-radius: 8px;
+  cursor: pointer;
+  font: 700 9px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease, transform 100ms ease;
+}
+
+.expand-button i {
+  color: #75f4bd;
+  font: normal 16px/1 system-ui, sans-serif;
+}
+
+.expand-button:hover,
+.expand-button.is-active {
+  color: #efffff;
+  background: rgba(25, 104, 116, 0.35);
+  border-color: rgba(117, 244, 189, 0.68);
+}
+
+.expand-button:active {
+  transform: scale(0.96);
+}
+
+.expand-button:focus-visible {
+  outline: 2px solid #75f4bd;
+  outline-offset: 2px;
 }
 
 .radar-badges {
@@ -340,7 +340,7 @@ body,
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: clamp(10px, 1vh, 12px);
 }
 
@@ -942,37 +942,6 @@ body,
   font: 12px "JetBrains Mono", ui-monospace, monospace;
 }
 
-.ambient-toggle {
-  position: fixed;
-  z-index: 20;
-  bottom: 12px;
-  left: 12px;
-  padding: 6px 10px;
-  color: #c9cdd6;
-  background: rgba(10, 12, 16, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  cursor: pointer;
-  font: 12px "JetBrains Mono", ui-monospace, monospace;
-  opacity: 0.12;
-  transition: opacity 0.2s ease;
-}
-
-.ambient-toggle:hover,
-.ambient-toggle:focus-visible {
-  opacity: 0.95;
-  outline: none;
-}
-
-.ambient-toggle.on {
-  color: #4ade80;
-  border-color: rgba(74, 222, 128, 0.5);
-}
-
-.ambient-warn {
-  color: #e0a23d;
-}
-
 @media (max-height: 800px) {
   .closest-card {
     padding: 13px;
@@ -1042,10 +1011,6 @@ body,
 
   .deck-main-grid {
     grid-template-columns: minmax(0, 1fr) 300px;
-  }
-
-  .feed-badge {
-    padding-inline: 9px;
   }
 
   .strip-intro {

@@ -52,6 +52,8 @@ async function exitFullscreen(): Promise<void> {
 export interface AmbientMode {
   /** Fullscreen and/or wake lock currently engaged. */
   active: boolean;
+  /** True only while the browser is actually displaying the page fullscreen. */
+  fullscreen: boolean;
   /** True if the Screen Wake Lock is currently held. */
   wakeLocked: boolean;
   enter: () => Promise<void>;
@@ -61,6 +63,7 @@ export interface AmbientMode {
 
 export function useAmbientMode(): AmbientMode {
   const [active, setActive] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const [wakeLocked, setWakeLocked] = useState(false);
   // WakeLockSentinel isn't in every lib.dom; keep it loosely typed.
   const sentinelRef = useRef<{ release: () => Promise<void>; addEventListener: (t: string, cb: () => void) => void } | null>(null);
@@ -101,18 +104,20 @@ export function useAmbientMode(): AmbientMode {
     wantLockRef.current = true;
     setActive(true);
     await Promise.all([requestFullscreen(), acquireLock()]);
+    setFullscreen(!!fullscreenElement());
   }, [acquireLock]);
 
   const exit = useCallback(async () => {
     wantLockRef.current = false;
     setActive(false);
     await Promise.all([exitFullscreen(), releaseLock()]);
+    setFullscreen(false);
   }, [releaseLock]);
 
   const toggle = useCallback(() => {
-    if (active) void exit();
+    if (fullscreen) void exit();
     else void enter();
-  }, [active, enter, exit]);
+  }, [enter, exit, fullscreen]);
 
   // Re-acquire the wake lock when the page becomes visible again — the browser
   // silently releases it whenever the tab is hidden or the device sleeps.
@@ -129,7 +134,9 @@ export function useAmbientMode(): AmbientMode {
   // Keep `active` in sync when the user leaves fullscreen via Esc / OS controls.
   useEffect(() => {
     const onFsChange = () => {
-      if (!fullscreenElement() && active) {
+      const isFullscreen = !!fullscreenElement();
+      setFullscreen(isFullscreen);
+      if (!isFullscreen && active) {
         wantLockRef.current = false;
         setActive(false);
         void releaseLock();
@@ -151,7 +158,7 @@ export function useAmbientMode(): AmbientMode {
     setActive(true);
     void acquireLock();
     const onGesture = () => {
-      void requestFullscreen();
+      void requestFullscreen().then(() => setFullscreen(!!fullscreenElement()));
       window.removeEventListener("pointerdown", onGesture);
       window.removeEventListener("keydown", onGesture);
     };
@@ -166,5 +173,5 @@ export function useAmbientMode(): AmbientMode {
   // Release the lock if the component unmounts while held.
   useEffect(() => () => void releaseLock(), [releaseLock]);
 
-  return { active, wakeLocked, enter, exit, toggle };
+  return { active, fullscreen, wakeLocked, enter, exit, toggle };
 }

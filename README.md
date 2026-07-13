@@ -1,8 +1,9 @@
 # Brenton's Flight Deck
 
-A live, full-screen flight display for a wall-mounted smart TV or touchscreen in
-Victoria. It combines real aircraft positions around the home
-area and Melbourne Airport with a current sky map, airport weather, and clocks.
+A live flight display for Victoria, adaptable between a regular TV or touchscreen
+and a fullscreen ceiling installation using an inexpensive vertical projector at
+about the $100 mark. It combines real aircraft positions around the viewing area
+and Melbourne Airport with a current sky map, local weather, and clocks.
 
 This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
@@ -10,19 +11,19 @@ This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpacze
 
 Brenton's Flight Deck alternates every 45 seconds between two live views:
 
-- **Airspace view** — a home-centred 50 km radar/map with live aircraft positions,
-  an approximate **Brenton's Home** marker, compass rings, trails, and Melbourne
-  Airport (MEL/YMML) runway context in its real geographic direction.
+- **Airspace view** — a home-centred 70 km radar/map with live aircraft positions,
+  compass rings, trails, and Melbourne Airport (MEL/YMML) runway context in its
+  real geographic direction.
 - **Looking-up view** — an altitude-aware sky dome calculated from an approximate
-  Riddells Creek viewpoint, with aircraft, stars, planets, the sun, moon, satellites,
+  viewpoint in Victoria, with aircraft, stars, planets, the sun, moon, satellites,
   compass directions, and elevation rings in their current positions.
 
-The large **Airspace / Look up** touch control switches views immediately. The TV-first screen
-is divided into:
+The large **Airspace / Look up** touch control switches views immediately, and the
+**Expand** button takes the display fullscreen. The screen is divided into:
 
-- a full-width header with Melbourne local time and connection status;
+- a full-width header with Melbourne local time and live status;
 - a large live radar or sky view across the left side;
-- an aircraft card and current-weather card on the right, showing details only
+- a current-weather card above the aircraft card on the right, showing details only
   when supplied by the live feeds; and
 - a lower strip with the next five aircraft by distance. Each tile is a button
   that opens that aircraft in the right rail.
@@ -38,14 +39,15 @@ celestial positions.
 Aircraft positions refresh about every three seconds, the clocks tick every second,
 and current weather is refreshed every five minutes from 15-minute model conditions.
 
-## TV use
+## TV or ceiling use
 
 Open the deployed site in the TV's browser with `/?kiosk=1` appended to the URL.
-Tap once to request full-screen mode and a screen wake lock. The layout is designed
-for a 16:9 landscape display such as an Echo Show 15 or framed touchscreen monitor.
+Tap **Expand** to request fullscreen mode and a screen wake lock. The same 16:9
+layout is designed to work on a regular TV, an Echo Show 15 or framed touchscreen,
+or a ceiling-filling image from a roughly $100 vertical projector.
 
-The public display uses only an approximate Riddells Creek suburb centre. It does
-not show or store a household name, street address, or house-level coordinate.
+The public display uses only an approximate viewpoint in Victoria. It does not
+show or store a household name, street address, or house-level coordinate.
 
 ## Live data
 

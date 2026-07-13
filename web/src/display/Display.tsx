@@ -7,13 +7,13 @@ import {
   formatDistance,
 } from "@shared/index.js";
 import { useStream } from "../lib/useStream.js";
-import { useAmbientMode, kioskRequested } from "../lib/useAmbientMode.js";
+import { useAmbientMode } from "../lib/useAmbientMode.js";
 import { FlightDeck, type DeckView } from "./FlightDeck.js";
 import { Renderer } from "./renderer.js";
 
 const THEMES: Theme[] = ["ambient", "telemetry", "focus"];
 const VIEW_SECONDS = 45;
-const HOME_RADIUS_MILES = 50 / MI_TO_KM;
+const HOME_RADIUS_MILES = 70 / MI_TO_KM;
 const RIDDELLS_AIRSPACE_CONFIG: Config = {
   ...DEFAULT_CONFIG,
   centerLat: RIDDELLS_CREEK_VIEWPOINT.lat,
@@ -46,7 +46,6 @@ function requestedDeckView(): DeckView {
 export function Display() {
   const { state, conn } = useStream("display");
   const ambient = useAmbientMode();
-  const isKiosk = kioskRequested();
   const [deckView, setDeckView] = useState<DeckView>(requestedDeckView);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
@@ -159,6 +158,8 @@ export function Display() {
         state={state}
         view={personalDeck ? deckView : cfg.projectionMode === "sky" ? "sky" : "runway"}
         autoSwitching={state.hosted}
+        fullscreenActive={ambient.fullscreen}
+        onToggleFullscreen={ambient.toggle}
         onSelectView={personalDeck
           ? (view) => setDeckView(view)
           : undefined}
@@ -174,22 +175,6 @@ export function Display() {
         </div>
       )}
       {!state.connected && <div className="reconnect">connecting…</div>}
-      {!isKiosk && (
-        <button
-          type="button"
-          className={`ambient-toggle ${ambient.active ? "on" : ""}`}
-          onClick={() => ambient.toggle()}
-          title={
-            ambient.active
-              ? "Exit ambient mode (fullscreen + keep awake) — press f"
-              : "Ambient mode: fullscreen + keep screen awake — press f"
-          }
-          aria-label="Toggle ambient fullscreen mode"
-        >
-          {ambient.active ? "◱ exit ambient" : "◳ ambient"}
-          {ambient.active && !ambient.wakeLocked && <span className="ambient-warn"> · no wake-lock</span>}
-        </button>
-      )}
     </div>
   );
 }

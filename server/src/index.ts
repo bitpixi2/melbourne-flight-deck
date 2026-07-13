@@ -7,7 +7,13 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { existsSync, readFileSync } from "node:fs";
 import express from "express";
-import { DEFAULT_CONFIG, type Config, type DataSource } from "@shared/index.js";
+import {
+  DEFAULT_CONFIG,
+  MI_TO_KM,
+  RIDDELLS_CREEK_VIEWPOINT,
+  type Config,
+  type DataSource,
+} from "@shared/index.js";
 import { ConfigStore, ConfigValidationError } from "./config-store.js";
 import { RouteEnricher } from "./enrich/routes.js";
 import { Poller } from "./datasource.js";
@@ -42,7 +48,14 @@ const GEOCODE_UA =
   process.env.GEOCODE_USER_AGENT ??
   "skylight-melbourne/0.1 (https://github.com/bitpixi2/skylight)";
 const CONFIG_PATH = resolve(DATA_DIR, "config.json");
-const SERVER_DEFAULT_CONFIG: Config = { ...DEFAULT_CONFIG, radioUrl: RADIO_URL };
+const SERVER_DEFAULT_CONFIG: Config = {
+  ...DEFAULT_CONFIG,
+  centerLat: RIDDELLS_CREEK_VIEWPOINT.lat,
+  centerLon: RIDDELLS_CREEK_VIEWPOINT.lon,
+  locationName: "Victoria",
+  radiusMiles: 70 / MI_TO_KM,
+  radioUrl: RADIO_URL,
+};
 
 function hasPersistedRadioUrl(path: string): boolean {
   try {
