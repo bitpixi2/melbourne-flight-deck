@@ -151,11 +151,15 @@ tablet, or any framed touchscreen with a modern browser; the server still runs o
 the other host. Use `/control` on the touchscreen or a phone for configuration.
 
 For a quick TV-browser test with no always-on computer, this fork also supports a
-hosted Vercel preview. The hosted display polls the public aircraft feed directly
-through a small serverless endpoint and uses the Melbourne defaults. Open the
-deployment URL with `/?kiosk=1` and tap once for full screen. This preview is
-display-only: persistent controls, a local radio receiver, and the camera tracker
-still require the full Skylight server.
+hosted Vercel preview. **Brenton's Flight Deck** polls the public aircraft feed
+through a small serverless endpoint and adds live Melbourne/UTC clocks, current
+Riddells Creek weather, and nearby traffic. It alternates every 45 seconds between
+the Melbourne Airport runway plan and an approximate Riddells Creek look-up sky;
+the on-screen button switches immediately. Open the deployment URL with
+`/?kiosk=1` and tap once for full screen. The public display names only Riddells
+Creek, not a household or street-level location. This preview is display-only:
+persistent controls, a local radio receiver, and the camera tracker still require
+the full Skylight server.
 
 ### With a radio (locally)
 

@@ -29,6 +29,14 @@ export type DistanceUnit = "mi" | "km";
 /** map = flat ground plan; sky = look-up dome with altitude-aware motion. */
 export type ProjectionMode = "map" | "sky";
 
+/** Approximate suburb centre used for Brenton's look-up view. Deliberately
+ * avoids publishing a household or street-level position. */
+export const RIDDELLS_CREEK_VIEWPOINT = {
+  lat: -37.4587733,
+  lon: 144.6776503,
+  name: "Riddells Creek",
+} as const;
+
 export interface Palette {
   bg: string;
   glyph: string;

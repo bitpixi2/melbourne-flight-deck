@@ -265,6 +265,10 @@ export class Renderer {
     cancelAnimationFrame(this.raf);
   }
 
+  resetTracks(): void {
+    this.tracks.clear();
+  }
+
   resize(): void {
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.w = this.canvas.clientWidth;

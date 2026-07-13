@@ -16,6 +16,7 @@ import { TleStore } from "./tle.js";
 import { resolveLocation } from "./geocode.js";
 import { buildHostMatcher, originHostname } from "./allowed-hosts.js";
 import { lookupAirport } from "./airports.js";
+import { fetchAirportWeather } from "./weather.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = resolve(__dirname, "../data");
@@ -138,6 +139,16 @@ async function main(): Promise<void> {
   app.get("/api/aircraft", (_req, res) => res.json(poller.getSnapshot()));
   app.get("/api/status", (_req, res) => res.json(poller.getStatus()));
   app.get("/api/tle", async (_req, res) => res.json(await tleStore.get()));
+  app.get("/api/weather", async (_req, res) => {
+    try {
+      res.set("Cache-Control", "public, max-age=300, stale-if-error=3600");
+      res.json(await fetchAirportWeather());
+    } catch (error) {
+      res.status(502).json({
+        error: error instanceof Error ? error.message : "weather source unavailable",
+      });
+    }
+  });
   app.post("/api/source", (req, res) => {
     const s = req.body?.source;
     if (s !== "radio" && s !== "api") {

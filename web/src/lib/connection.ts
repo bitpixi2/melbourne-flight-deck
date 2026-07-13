@@ -2,6 +2,7 @@
 
 import {
   DEFAULT_CONFIG,
+  NM_PER_MILE,
   type Aircraft,
   type ClientMessage,
   type Config,
@@ -12,14 +13,19 @@ import {
 interface HostedSnapshot {
   now: number;
   aircraft?: Aircraft[];
+  nearbyAircraft?: Aircraft[];
+  nearbyRadiusNm?: number;
   status: SourceStatus;
 }
 
 export interface StreamState {
   connected: boolean;
+  hosted: boolean;
   config: Config | null;
   now: number;
   aircraft: Aircraft[];
+  nearbyAircraft: Aircraft[];
+  nearbyRadiusNm: number;
   status: SourceStatus | null;
 }
 
@@ -35,9 +41,12 @@ export class Connection {
 
   state: StreamState = {
     connected: false,
+    hosted: false,
     config: null,
     now: 0,
     aircraft: [],
+    nearbyAircraft: [],
+    nearbyRadiusNm: DEFAULT_CONFIG.radiusMiles * NM_PER_MILE,
     status: null,
   };
 
@@ -63,7 +72,7 @@ export class Connection {
     this.ws.onopen = () => {
       this.stopHostedPolling();
       this.send({ type: "hello", role: this.role });
-      this.update({ connected: true });
+      this.update({ connected: true, hosted: false });
     };
     this.ws.onclose = () => {
       this.update({ connected: false });
@@ -99,7 +108,7 @@ export class Connection {
       const response = await fetch("/api/live");
       const snapshot = (await response.json()) as HostedSnapshot;
       if (!response.ok) {
-        this.update({ connected: true, config: DEFAULT_CONFIG, status: snapshot.status });
+        this.update({ connected: true, hosted: true, config: DEFAULT_CONFIG, status: snapshot.status });
         return;
       }
       this.usingHostedPolling = true;
@@ -107,9 +116,12 @@ export class Connection {
       this.reconnectTimer = null;
       this.update({
         connected: true,
+        hosted: true,
         config: DEFAULT_CONFIG,
         now: snapshot.now,
         aircraft: snapshot.aircraft ?? [],
+        nearbyAircraft: snapshot.nearbyAircraft ?? snapshot.aircraft ?? [],
+        nearbyRadiusNm: snapshot.nearbyRadiusNm ?? DEFAULT_CONFIG.radiusMiles * NM_PER_MILE,
         status: snapshot.status,
       });
     } catch {
@@ -126,10 +138,15 @@ export class Connection {
     }
     switch (msg.type) {
       case "config":
-        this.update({ config: msg.config });
+        this.update({
+          config: msg.config,
+          nearbyRadiusNm: this.usingHostedPolling
+            ? this.state.nearbyRadiusNm
+            : msg.config.radiusMiles * NM_PER_MILE,
+        });
         break;
       case "aircraft":
-        this.update({ now: msg.now, aircraft: msg.aircraft });
+        this.update({ now: msg.now, aircraft: msg.aircraft, nearbyAircraft: msg.aircraft });
         break;
       case "status":
         this.update({ status: msg.status });

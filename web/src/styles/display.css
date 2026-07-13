@@ -17,16 +17,275 @@ body,
   cursor: none; /* hidden on the projector; unclutter also runs on the Pi */
 }
 .display-root {
+  --deck-width: clamp(310px, 28vw, 430px);
   position: fixed;
   inset: 0;
   background: #000;
 }
 .display-canvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  inset: 0 auto 0 0;
+  width: calc(100% - var(--deck-width));
   height: 100%;
   display: block;
+}
+.flight-deck {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 0 auto;
+  width: var(--deck-width);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vh, 24px);
+  padding: clamp(22px, 3.2vh, 38px) clamp(20px, 2.6vw, 38px) clamp(18px, 2.5vh, 30px);
+  overflow: hidden;
+  color: #e9edf5;
+  font-family: Inter, system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(155, 126, 207, 0.13), transparent 38%),
+    linear-gradient(155deg, #0b0e14 0%, #05070a 54%, #090b10 100%);
+  border-left: 1px solid rgba(180, 194, 220, 0.13);
+  box-shadow: -30px 0 70px rgba(0, 0, 0, 0.5);
+}
+.flight-deck::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(155, 126, 207, 0.7) 20%, rgba(79, 206, 255, 0.35) 68%, transparent);
+}
+.deck-header {
+  flex: none;
+}
+.deck-airport-row,
+.deck-section-heading,
+.flight-deck footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #7f899b;
+  font: 600 9px/1.2 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.deck-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  letter-spacing: 0.09em;
+}
+.deck-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+}
+.deck-live.is-live {
+  color: #5ee99b;
+}
+.deck-live.is-offline {
+  color: #ef806e;
+}
+.deck-header h1 {
+  margin: clamp(15px, 2.2vh, 25px) 0 8px;
+  color: #f5f7fb;
+  font-size: clamp(26px, 2.5vw, 42px);
+  font-weight: 520;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.deck-header p {
+  margin: 0;
+  color: #929bab;
+  font-size: clamp(10px, 0.9vw, 13px);
+  letter-spacing: 0.04em;
+}
+.deck-location-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.deck-location-row p {
+  min-width: 0;
+}
+.deck-location-row button {
+  flex: none;
+  padding: 6px 9px;
+  color: #bfc8d8;
+  background: rgba(155, 126, 207, 0.09);
+  border: 1px solid rgba(155, 126, 207, 0.32);
+  border-radius: 999px;
+  cursor: pointer;
+  font: 600 8px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.deck-location-row button:focus-visible {
+  outline: 2px solid #9b7ecf;
+  outline-offset: 2px;
+}
+.deck-auto {
+  display: block;
+  margin-top: 8px;
+  color: #555f70;
+  font: 500 8px/1.2 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.deck-clock {
+  flex: none;
+  padding: clamp(13px, 1.8vh, 20px) 0;
+  border-block: 1px solid rgba(180, 194, 220, 0.11);
+}
+.deck-clock > time {
+  display: block;
+  color: #f1f4fa;
+  font: 400 clamp(34px, 3.8vw, 58px)/0.95 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.deck-clock > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  color: #7f899a;
+  font: 500 9px/1.2 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.deck-section {
+  flex: none;
+}
+.deck-section-heading {
+  margin-bottom: 13px;
+}
+.deck-section-heading > span:first-child {
+  color: #c4cad5;
+}
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+.weather-main > strong {
+  min-width: 74px;
+  color: #f2f5fb;
+  font: 400 clamp(40px, 4vw, 60px)/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.08em;
+}
+.weather-main > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.weather-main b {
+  color: #d8dce5;
+  font-size: 13px;
+  font-weight: 550;
+}
+.weather-main span,
+.weather-grid span {
+  color: #747e90;
+  font-size: 10px;
+}
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 15px;
+  margin-top: 15px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(180, 194, 220, 0.09);
+}
+.weather-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.weather-grid b {
+  color: #c9ced8;
+  font: 500 10px/1.25 "JetBrains Mono", ui-monospace, monospace;
+}
+.deck-traffic {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.flight-list {
+  min-height: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border-top: 1px solid rgba(180, 194, 220, 0.09);
+}
+.flight-list li {
+  min-height: 57px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(180, 194, 220, 0.08);
+}
+.flight-list li > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.flight-list strong {
+  overflow: hidden;
+  color: #eff2f7;
+  font: 600 12px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flight-list span {
+  overflow: hidden;
+  color: #778193;
+  font: 500 9px/1 "JetBrains Mono", ui-monospace, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flight-list li > b {
+  flex: none;
+  color: #aeb7c7;
+  font: 500 12px/1 "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.flight-list small {
+  color: #616b7b;
+  font-size: 8px;
+}
+.deck-placeholder {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: center;
+  color: #677183;
+  border-block: 1px solid rgba(180, 194, 220, 0.08);
+  font: 500 9px/1.4 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.flight-deck footer {
+  flex: none;
+  color: #4d5666;
+  font-size: 8px;
+  letter-spacing: 0.1em;
 }
 .hud {
   position: fixed;
@@ -56,7 +315,7 @@ body,
 .reconnect {
   position: fixed;
   bottom: 14px;
-  right: 16px;
+  right: calc(var(--deck-width) + 16px);
   font: 12px "JetBrains Mono", ui-monospace, monospace;
   color: #6b7280;
 }
@@ -85,4 +344,50 @@ body,
 }
 .ambient-warn {
   color: #e0a23d;
+}
+
+@media (max-height: 740px) {
+  .flight-deck {
+    gap: 11px;
+    padding-block: 17px 14px;
+  }
+  .deck-header h1 {
+    margin-top: 12px;
+    font-size: 27px;
+  }
+  .deck-clock {
+    padding-block: 10px;
+  }
+  .deck-clock > time {
+    font-size: 35px;
+  }
+  .deck-clock > div {
+    margin-top: 7px;
+  }
+  .weather-main > strong {
+    font-size: 38px;
+  }
+  .weather-grid {
+    margin-top: 9px;
+    padding-top: 9px;
+  }
+  .flight-list li {
+    min-height: 48px;
+    padding-block: 7px;
+  }
+  .flight-list li:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .display-root {
+    --deck-width: clamp(270px, 36vw, 320px);
+  }
+  .flight-deck {
+    padding-inline: 18px;
+  }
+  .deck-header h1 {
+    font-size: 26px;
+  }
 }

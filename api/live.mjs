@@ -2,10 +2,11 @@
 // local appliance still uses its long-running WebSocket server; this endpoint
 // gives browser-only displays a small polling fallback on Vercel.
 
-const CENTER_LAT = -37.670732;
-const CENTER_LON = 144.837898;
-const DISPLAY_RADIUS_MI = 3;
-const API_RADIUS_NM = 4;
+// Approximate Riddells Creek suburb centre: close enough for a true look-up
+// sky plot without publishing a household or street-level position.
+const CENTER_LAT = -37.4587733;
+const CENTER_LON = 144.6776503;
+const API_RADIUS_NM = 25;
 const UPSTREAM = `https://api.airplanes.live/v2/point/${CENTER_LAT}/${CENTER_LON}/${API_RADIUS_NM}`;
 
 function distanceMiles(lat1, lon1, lat2, lon2) {
@@ -20,9 +21,6 @@ function distanceMiles(lat1, lon1, lat2, lon2) {
 
 function normalize(raw, now) {
   if (!raw.hex || raw.lat == null || raw.lon == null) return null;
-  if (distanceMiles(CENTER_LAT, CENTER_LON, raw.lat, raw.lon) > DISPLAY_RADIUS_MI * 1.08) {
-    return null;
-  }
   const onGround = raw.alt_baro === "ground";
   return {
     hex: raw.hex,
@@ -60,9 +58,17 @@ export default async function handler(request, response) {
     });
     if (!upstream.ok) throw new Error(`aircraft source returned HTTP ${upstream.status}`);
     const body = await upstream.json();
-    const aircraft = (body.ac ?? body.aircraft ?? [])
+    const nearbyAircraft = (body.ac ?? body.aircraft ?? [])
       .map((raw) => normalize(raw, now))
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort(
+        (a, b) =>
+          distanceMiles(CENTER_LAT, CENTER_LON, a.lat, a.lon) -
+          distanceMiles(CENTER_LAT, CENTER_LON, b.lat, b.lon),
+      );
+    // Return the full area feed. The canvas applies the active view's own
+    // centre/radius filter: tight around MEL in runway mode, wide in sky mode.
+    const aircraft = nearbyAircraft;
 
     response.setHeader(
       "Cache-Control",
@@ -71,6 +77,8 @@ export default async function handler(request, response) {
     return response.status(200).json({
       now,
       aircraft,
+      nearbyAircraft,
+      nearbyRadiusNm: API_RADIUS_NM,
       status: { source: "api", ok: true, count: aircraft.length, lastOk: now },
     });
   } catch (error) {
