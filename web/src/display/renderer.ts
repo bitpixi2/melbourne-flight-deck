@@ -1105,7 +1105,7 @@ export class Renderer {
       const a = pts[i - 1];
       const b = pts[i];
       const f = 1 - b.age; // 1 at head, 0 at tail
-      ctx.strokeStyle = rgba(v.color, 0.55 * f * v.alpha);
+      ctx.strokeStyle = rgba(v.color, cfg.trailOpacity * f * v.alpha);
       ctx.lineWidth = 0.7 + 2.2 * f * (cfg.glyphSizePx / 14);
       ctx.beginPath();
       ctx.moveTo(a.p.x, a.p.y);

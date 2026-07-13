@@ -291,6 +291,8 @@ export interface Config {
   /** Color the glyph by altitude. */
   altitudeColor: boolean;
   trailSeconds: number;
+  /** Peak trail opacity at the aircraft head, from 0..1. */
+  trailOpacity: number;
   /** Global brightness 0..1 (helps keep projector blacks deep). */
   brightness: number;
 
@@ -392,6 +394,7 @@ export const DEFAULT_CONFIG: Config = {
   glyphSizePx: 22,
   altitudeColor: true,
   trailSeconds: 45,
+  trailOpacity: 0.55,
   brightness: 1,
 
   labelDensity: "all",
