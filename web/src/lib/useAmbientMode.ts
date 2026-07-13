@@ -4,8 +4,8 @@
 // the Fullscreen API is missing (e.g. iOS Safari can't fullscreen a <div>), it
 // does whatever it can and never throws.
 //
-// `?kiosk=1` in the URL auto-engages on load (wake lock immediately; fullscreen
-// on the first user gesture, since browsers require one).
+// `?kiosk=1` in the URL auto-engages the wake lock on load. Fullscreen stays
+// behind the visible Expand button because browsers require a user gesture.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -150,24 +150,13 @@ export function useAmbientMode(): AmbientMode {
     };
   }, [active, releaseLock]);
 
-  // `?kiosk=1`: grab the wake lock immediately; engage fullscreen on the first
-  // user gesture (browsers won't fullscreen without one).
+  // `?kiosk=1`: grab the wake lock immediately. The dedicated Expand button
+  // handles fullscreen without competing with a page-wide gesture listener.
   useEffect(() => {
     if (!kioskRequested()) return;
     wantLockRef.current = true;
     setActive(true);
     void acquireLock();
-    const onGesture = () => {
-      void requestFullscreen().then(() => setFullscreen(!!fullscreenElement()));
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("keydown", onGesture);
-    };
-    window.addEventListener("pointerdown", onGesture);
-    window.addEventListener("keydown", onGesture);
-    return () => {
-      window.removeEventListener("pointerdown", onGesture);
-      window.removeEventListener("keydown", onGesture);
-    };
   }, [acquireLock]);
 
   // Release the lock if the component unmounts while held.
