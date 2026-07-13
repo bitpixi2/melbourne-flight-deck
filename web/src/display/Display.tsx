@@ -39,7 +39,6 @@ const RIDDELLS_SKY_CONFIG: Config = {
   projectionMode: "sky",
   showAirport: false,
 };
-const PROJECTOR_LABEL_SECONDS = 12;
 const PROJECTOR_CONFIG: Config = {
   ...RIDDELLS_AIRSPACE_CONFIG,
   mirrorX: true,
@@ -68,19 +67,6 @@ const PROJECTOR_CONFIG: Config = {
     registration: false,
   },
 };
-const PROJECTOR_QUIET_CONFIG: Config = {
-  ...PROJECTOR_CONFIG,
-  showFields: {
-    name: false,
-    type: false,
-    altitude: false,
-    speed: false,
-    verticalRate: false,
-    destination: false,
-    registration: false,
-  },
-};
-
 function requestedDeckView(): WideDeckView {
   const requested = new URLSearchParams(window.location.search).get("view");
   return requested === "sky" || requested === "overhead" ? "overhead" : "runway";
@@ -92,7 +78,6 @@ export function Display() {
   const projectorMode = projectorRequested();
   const [deckView, setDeckView] = useState<DeckView>(requestedDeckView);
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
-  const [projectorLabelsVisible, setProjectorLabelsVisible] = useState(true);
   const lastWideViewRef = useRef<WideDeckView>(requestedDeckView());
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
@@ -123,7 +108,7 @@ export function Display() {
       }
     : null;
   const displayConfig = projectorMode
-    ? (projectorLabelsVisible ? PROJECTOR_CONFIG : PROJECTOR_QUIET_CONFIG)
+    ? PROJECTOR_CONFIG
     : personalDeck
       ? followConfig ?? (deckView === "overhead" ? RIDDELLS_SKY_CONFIG : RIDDELLS_AIRSPACE_CONFIG)
       : (state.config ?? DEFAULT_CONFIG);
@@ -158,18 +143,6 @@ export function Display() {
     setSelectedHex(null);
     setDeckView(lastWideViewRef.current);
   }, [deckView, followedAircraft]);
-
-  // Keep the ceiling uncluttered: only the nearest aircraft's compact label
-  // appears, alternating between twelve seconds visible and twelve quiet.
-  useEffect(() => {
-    if (!projectorMode) return;
-    setProjectorLabelsVisible(true);
-    const timer = window.setInterval(
-      () => setProjectorLabelsVisible((visible) => !visible),
-      PROJECTOR_LABEL_SECONDS * 1000,
-    );
-    return () => window.clearInterval(timer);
-  }, [projectorMode]);
 
   // Create renderer once.
   useEffect(() => {

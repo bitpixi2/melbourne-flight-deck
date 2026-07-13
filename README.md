@@ -57,9 +57,8 @@ show or store a household name, street address, or house-level coordinate.
 Open `/?kiosk=2` for the separate projector presentation. It keeps only the
 full-screen overhead aircraft field, longer-lived trails, stars,
 constellation lines, the Moon, planets and satellites; the nearest aircraft's
-callsign, type, altitude, and speed appear for 12 seconds, then the aircraft
-label disappears for 12 seconds. There are no dashboard panels or visible
-cursor.
+callsign, type, altitude, and speed remain visible beside it. There are no
+dashboard panels or visible cursor.
 
 Kiosk 2 requests a screen wake lock immediately and enters fullscreen on its
 first pointer gesture. A deployment built with `VITE_DEFAULT_KIOSK=2` opens this
