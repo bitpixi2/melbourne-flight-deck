@@ -7,6 +7,18 @@ viewing area and Melbourne Airport with a current sky map, local weather, and cl
 
 This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
+## Live data
+
+| Information | Source |
+|---|---|
+| Aircraft positions | [airplanes.live](https://airplanes.live/) public ADS-B feed |
+| Current conditions | [Open-Meteo](https://open-meteo.com/) |
+| Airline SVG catalog | [Soaring Symbols](https://github.com/soaring-symbols/soaring-symbols) |
+| Satellite elements | [CelesTrak](https://celestrak.org/) |
+| Sun, moon, stars and planets | [astronomy-engine](https://github.com/cosinekitty/astronomy) |
+| Satellite positions | [satellite.js](https://github.com/shashwatak/satellite-js) |
+| Melbourne Airport runways | [OurAirports](https://ourairports.com/) |
+
 ## Display options
 
 ### Option 1 — TV dashboard (Free)
@@ -82,18 +94,6 @@ supplies radio audio.
 
 The optional radio equipment is receive-only. [ACMA says](https://www.acma.gov.au/apparatus-licences)
 a receiver only needs an apparatus licence when an assigned frequency is required.
-
-## Live data
-
-| Information | Source |
-|---|---|
-| Aircraft positions | [airplanes.live](https://airplanes.live/) public ADS-B feed |
-| Current conditions | [Open-Meteo](https://open-meteo.com/) |
-| Airline SVG catalog | [Soaring Symbols](https://github.com/soaring-symbols/soaring-symbols) |
-| Satellite elements | [CelesTrak](https://celestrak.org/) |
-| Sun, moon, stars and planets | [astronomy-engine](https://github.com/cosinekitty/astronomy) |
-| Satellite positions | [satellite.js](https://github.com/shashwatak/satellite-js) |
-| Melbourne Airport runways | [OurAirports](https://ourairports.com/) |
 
 ## License and attribution
 
