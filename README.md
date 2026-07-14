@@ -13,6 +13,8 @@ time, and the sky overhead. This is a Melbourne-focused fork of
 |:---:|:---:|:---:|
 | **Free** | **About A$150** | **A$1,800–A$2,000 + curtains** |
 
+<br>
+
 ## Live data
 
 | Information | Source |
@@ -24,6 +26,8 @@ time, and the sky overhead. This is a Melbourne-focused fork of
 | Sun, moon, stars and planets | <img src="docs/source-icons/github.png" alt="GitHub favicon" width="18"> [astronomy-engine](https://github.com/cosinekitty/astronomy) |
 | Satellite positions | <img src="docs/source-icons/github.png" alt="GitHub favicon" width="18"> [satellite.js](https://github.com/shashwatak/satellite-js) |
 | Melbourne Airport runways | <img src="docs/source-icons/ourairports.png" alt="OurAirports favicon" width="18"> [OurAirports](https://ourairports.com/) |
+
+<br>
 
 ## Display options
 
@@ -48,6 +52,8 @@ seconds. Tap **Expand** for fullscreen and a screen wake lock; Kiosk 1 keeps the
 cursor visible and includes interactive **Runway**, **Overhead**, and **Follow**
 controls.
 
+<br>
+
 ### Option 2 — Overhead Projector (About A$150)
 
 ![Brenton's Overhead running as the minimal ceiling projector view](docs/brentons-overhead-projector.png)
@@ -63,6 +69,8 @@ wake lock immediately and enters fullscreen on its first tap.
 [Kimwood vertical projector — A$145.99 on Amazon Australia](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM).
 This inexpensive rotating-projector style is suited to the ceiling setup;
 availability and pricing can change.
+
+<br>
 
 ### Option 3 — Overhead Projector Premium
 
@@ -83,6 +91,8 @@ into Kiosk 2, so the projector only needs to provide a reliable HDMI image.
 | Installation | Secure 360-degree-compatible stand or mount and cabling | $100–$250 |
 | **Estimated total** | Pi setup with the ViewSonic; excludes curtains, optional local receivers, installation labour and internet service | **$1,800–$2,000 + curtains** |
 
+<br>
+
 #### Optional local receivers
 
 | **Local ADS-B — FlightAware Pro Stick Plus** | **Airband audio — XHData D-808** |
@@ -94,6 +104,8 @@ Both are optional, receive-only additions, and the public live feeds continue to
 work without them: the FlightAware receiver supplies local aircraft data, while
 the D-808 supplies radio audio. [ACMA says](https://www.acma.gov.au/apparatus-licences)
 a receiver only needs an apparatus licence when an assigned frequency is required.
+
+<br>
 
 ## License and attribution
 
