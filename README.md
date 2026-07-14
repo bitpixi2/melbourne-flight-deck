@@ -1,9 +1,16 @@
 # Brenton's Flight Deck
 
-A live flight display for Victoria, adaptable between a regular TV or touchscreen
-and a fullscreen ceiling installation using an inexpensive vertical projector at
-around the A$100–A$150 mark. It combines real aircraft positions around the
-viewing area and Melbourne Airport with a current sky map, local weather, and clocks.
+Brenton's Flight Deck is a live Melbourne airspace and night-sky display made for
+an existing TV or touchscreen, an inexpensive ceiling projector, or a brighter
+Raspberry Pi-powered premium installation. It combines real-time aircraft around
+the viewing area and Melbourne Airport with current weather, local time, and the
+sky overhead.
+
+### Cost at a glance
+
+| **Option 1 — TV dashboard** | **Option 2 — Overhead projector** | **Option 3 — Premium overhead projector** |
+|:---:|:---:|:---:|
+| **Free** | **About A$150** | **A$1,800–A$2,000 + curtains** |
 
 This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
@@ -53,14 +60,7 @@ constellations, the Moon, planets, satellites and basic details for the nearest
 flight. There are no dashboard panels or visible cursor. It requests a screen
 wake lock immediately and enters fullscreen on its first tap.
 
-#### Example vertical projector
-
 [![Kimwood vertical projector showing ceiling-scale projection sizes](docs/kimwood-projector-example.png)](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM)
-
-[View the Kimwood projector on Amazon Australia](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM).
-The linked model is currently available from A$145.99. It is an example of the
-inexpensive rotating-projector style suited to the ceiling setup; availability
-and pricing can change.
 
 ### Option 3 — Overhead Projector Premium
 
