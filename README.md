@@ -2,6 +2,12 @@
 
 ## aka Brenton's Flight Deck
 
+[![TV dashboard](https://img.shields.io/badge/TV_dashboard-open-00b8a9?style=flat-square)](https://skylight-melbourne.vercel.app/?kiosk=1)
+[![Overhead projector](https://img.shields.io/badge/Overhead_projector-open-18a6c9?style=flat-square)](https://brentons-overhead.vercel.app)
+[![CI](https://github.com/bitpixi2/melbourne-flight-deck/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bitpixi2/melbourne-flight-deck/actions/workflows/ci.yml)
+[![MIT license](https://img.shields.io/github/license/bitpixi2/melbourne-flight-deck?style=flat-square)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/bitpixi2/melbourne-flight-deck?style=flat-square)](https://github.com/bitpixi2/melbourne-flight-deck/commits/main)
+
 Melbourne Flight Deck is a live Melbourne airspace and night-sky display made for
 an existing TV or touchscreen, an inexpensive ceiling projector, or a brighter
 Raspberry Pi-powered premium installation. Its viewpoint is positioned over
