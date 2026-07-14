@@ -86,13 +86,11 @@ into Kiosk 2, so the projector only needs to provide a reliable HDMI image.
 | **Local ADS-B — FlightAware Pro Stick Plus** | **Airband audio — XHData D-808** |
 |---|---|
 | [<img src="docs/flightaware-pro-stick-plus.jpg" alt="FlightAware Pro Stick Plus USB ADS-B receiver" width="100%">](https://core-electronics.com.au/flightaware-pro-stick-plus-usb-sdr-ads-b-receiver.html) | [<img src="docs/xhdata-d808-airband-receiver.jpg" alt="XHData D-808 airband receiver" width="100%">](https://www.tecsunradios.com.au/store/product/xhdata-d-808-lw-mw-sw-fm-airband-receiver/) |
-| **A$98.75 receiver; antenna from A$14.70.** This USB SDR adds directly received local 1090 MHz aircraft positions to the Pi setup. It has a built-in RF amplifier and 1090 MHz filter and works with Skylight's local receiver mode. Add a separate [1090 MHz SMA antenna](https://core-electronics.com.au/3dbi-ads-b-1090mhz-sma-antenna-w-magnetic-base-1.html). | **A$185 standalone receiver.** Listen to nearby 118–137 MHz VHF airband traffic through its own speaker. It includes squelch to quiet the background between transmissions and runs separately while the FlightAware stick remains dedicated to ADS-B. |
+| **A$98.75 receiver; antenna from A$14.70.** This USB SDR adds directly received local 1090 MHz aircraft positions to the Pi setup. It has a built-in RF amplifier and 1090 MHz filter and works with Skylight's local receiver mode. Add a separate [1090 MHz SMA antenna](https://core-electronics.com.au/3dbi-ads-b-1090mhz-sma-antenna-w-magnetic-base-1.html). | **[XHData D-808 — A$185](https://www.tecsunradios.com.au/store/product/xhdata-d-808-lw-mw-sw-fm-airband-receiver/).** Listen to nearby 118–137 MHz VHF airband traffic through its own speaker. It includes squelch to quiet the background between transmissions and runs separately while the FlightAware stick remains dedicated to ADS-B. |
 
-Both are optional receive-only additions; the public live feeds continue to work
-without them. The FlightAware receiver supplies aircraft data, while the D-808
-supplies radio audio.
-
-The optional radio equipment is receive-only. [ACMA says](https://www.acma.gov.au/apparatus-licences)
+Both are optional, receive-only additions, and the public live feeds continue to
+work without them: the FlightAware receiver supplies local aircraft data, while
+the D-808 supplies radio audio. [ACMA says](https://www.acma.gov.au/apparatus-licences)
 a receiver only needs an apparatus licence when an assigned frequency is required.
 
 ## License and attribution
