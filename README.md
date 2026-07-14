@@ -101,9 +101,9 @@ into Kiosk 2, so the projector only needs to provide a reliable HDMI image.
 |---|---|---:|
 | Player | [Raspberry Pi 4 Model B, 4 GB](https://core-electronics.com.au/raspberry-pi-4-model-b-4gb.html) | $163 |
 | Pi essentials | Official power supply, case, 32 GB microSD card and micro-HDMI cable | $50–$80 |
-| Brighter projector | [Epson CO-FH02](https://www.epson.com.au/products/projectors-for-home/home-theatre/CO-FH02) — Full HD, 3,000-lumen, 1.19–1.61 standard throw | $1,099 |
-| Installation | Secure mount or shelf, cabling and an optional first-surface mirror | $100–$250 |
-| **Estimated total** | Excluding installation labour and internet service | **$1,400–$1,600** |
+| Brighter vertical projector | [Epson EB-L260F](https://www.epson.com.au/products/projectors-for-business-education/mid-range-education/EB-L260F) — Full HD laser, 4,600 lumens, 360-degree projection and 1.32–2.12 standard/long throw | $3,199 |
+| Installation | Secure 360-degree-compatible stand or mount and cabling | $100–$250 |
+| **Estimated total** | Excluding installation labour and internet service | **$3,500–$3,700** |
 
 Prices were checked in Australia on 14 July 2026 and will change. The projector
 is the main cost; an existing suitable projector can reduce the total
@@ -112,12 +112,13 @@ substantially.
 #### Installation plan
 
 1. **Measure first.** Choose the ceiling image area and measure the full optical
-   path from the projector to that area. The CO-FH02 produces a 60-inch image at
-   approximately 1.58 m; use Epson's distance calculator before fixing a mount.
-2. **Plan the upward image safely.** Keep the projector in an orientation allowed
-   by its manufacturer, leave its vents clear and use a properly secured mount
-   or shelf. If direct lens-up operation is not supported, keep it horizontal
-   and use a 45-degree first-surface mirror to turn the image onto the ceiling.
+   path from the projector to that area. The EB-L260F produces a 62-inch image at
+   approximately 1.8 m and has a 1.32–2.12 throw ratio; confirm the desired image
+   size before fixing a stand or mount.
+2. **Aim it upward safely.** Epson explicitly rates the EB-L260F for 360-degree
+   projection, allowing its lens to point directly at the ceiling without a
+   mirror. Secure the 4.2 kg projector with hardware suitable for that orientation
+   and keep every intake and exhaust vent clear.
 3. **Prepare the Pi.** Install Raspberry Pi OS with Desktop on the microSD card,
    connect Wi-Fi or Ethernet, and connect the Pi to the projector over HDMI.
 4. **Make it appliance-like.** Configure Chromium to open
