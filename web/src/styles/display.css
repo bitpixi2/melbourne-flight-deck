@@ -54,6 +54,112 @@ body,
   background: #000;
 }
 
+.projector-link-status {
+  position: fixed;
+  z-index: 5;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  color: rgba(196, 220, 224, 0.58);
+  background: rgba(1, 8, 10, 0.74);
+  border: 1px solid rgba(90, 175, 186, 0.15);
+  border-radius: 7px;
+  font: 700 8px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.projector-link-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff8978;
+}
+
+.projector-link-status i.online {
+  background: #78f0ba;
+  box-shadow: 0 0 9px rgba(120, 240, 186, 0.7);
+}
+
+.projector-pairing {
+  position: fixed;
+  z-index: 8;
+  inset: 50% auto auto 50%;
+  width: min(760px, calc(100vw - 80px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 34px;
+  align-items: center;
+  padding: 34px;
+  color: #eef8f8;
+  background: rgba(3, 15, 19, 0.94);
+  border: 1px solid rgba(109, 228, 239, 0.38);
+  border-radius: 20px;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.72), inset 0 0 60px rgba(19, 100, 111, 0.08);
+  transform: translate(-50%, -50%);
+  cursor: default !important;
+}
+
+.projector-pairing-copy > span {
+  color: #78f0ba;
+  font: 700 9px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.projector-pairing h1 {
+  margin: 12px 0;
+  font: 700 46px/0.92 "Barlow Condensed", sans-serif;
+  letter-spacing: 0.025em;
+}
+
+.projector-pairing p {
+  max-width: 390px;
+  margin: 0 0 18px;
+  color: #a9c0c5;
+  font: 400 14px/1.5 Inter, system-ui, sans-serif;
+}
+
+.projector-pairing small {
+  color: #5f7c83;
+  font: 700 8px/1.4 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.projector-pairing img,
+.projector-qr-loading {
+  width: 280px;
+  height: 280px;
+  border-radius: 13px;
+  background: #f2fbf9;
+}
+
+.projector-qr-loading {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  color: #31525a;
+  font: 700 10px "JetBrains Mono", ui-monospace, monospace;
+  text-align: center;
+}
+
+@media (max-width: 760px), (max-height: 620px) {
+  .projector-pairing {
+    width: min(620px, calc(100vw - 36px));
+    grid-template-columns: 1fr 190px;
+    gap: 20px;
+    padding: 22px;
+  }
+  .projector-pairing h1 { font-size: 34px; }
+  .projector-pairing p { font-size: 11px; }
+  .projector-pairing img,
+  .projector-qr-loading { width: 190px; height: 190px; }
+}
+
 .deck-topbar {
   min-width: 0;
   display: flex;

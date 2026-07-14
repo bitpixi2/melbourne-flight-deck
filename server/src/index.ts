@@ -10,6 +10,7 @@ import express from "express";
 import {
   DEFAULT_CONFIG,
   MI_TO_KM,
+  NM_PER_MILE,
   RIDDELLS_CREEK_VIEWPOINT,
   type Config,
   type DataSource,
@@ -150,6 +151,15 @@ async function main(): Promise<void> {
   });
   app.post("/api/config/reset", (_req, res) => res.json(store.reset()));
   app.get("/api/aircraft", (_req, res) => res.json(poller.getSnapshot()));
+  app.get("/api/live", (_req, res) => {
+    const snapshot = poller.getSnapshot();
+    res.json({
+      ...snapshot,
+      nearbyAircraft: snapshot.aircraft,
+      nearbyRadiusNm: store.get().radiusMiles * NM_PER_MILE,
+      status: poller.getStatus(),
+    });
+  });
   app.get("/api/status", (_req, res) => res.json(poller.getStatus()));
   app.get("/api/tle", async (_req, res) => res.json(await tleStore.get()));
   app.get("/api/weather", async (_req, res) => {

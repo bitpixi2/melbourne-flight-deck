@@ -3,9 +3,11 @@ packages:
   - web
   - shared
   - tracker
+  - relay
 
 onlyBuiltDependencies:
   - esbuild
+  - workerd
 
 # Our lockfile is freshly resolved + pinned; don't reject just-published
 # transitive deps (electron-to-chromium / node-releases) on install.

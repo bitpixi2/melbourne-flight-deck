@@ -10,6 +10,8 @@ import { useStream } from "../lib/useStream.js";
 import { kioskRequested, projectorRequested, useAmbientMode } from "../lib/useAmbientMode.js";
 import { FlightDeck, type DeckView, type WideDeckView } from "./FlightDeck.js";
 import { Renderer } from "./renderer.js";
+import { ProjectorPairing } from "../companion/ProjectorPairing.js";
+import { useProjectorCompanion } from "../companion/useCompanion.js";
 
 const THEMES: Theme[] = ["ambient", "telemetry", "focus"];
 const VIEW_SECONDS = 45;
@@ -39,8 +41,8 @@ const RIDDELLS_SKY_CONFIG: Config = {
   projectionMode: "sky",
   showAirport: false,
 };
-const PROJECTOR_CONFIG: Config = {
-  ...RIDDELLS_AIRSPACE_CONFIG,
+const PROJECTOR_SKY_CONFIG: Config = {
+  ...RIDDELLS_SKY_CONFIG,
   mirrorX: true,
   showAirport: false,
   rangeRings: false,
@@ -67,6 +69,21 @@ const PROJECTOR_CONFIG: Config = {
     registration: false,
   },
 };
+const PROJECTOR_RUNWAY_CONFIG: Config = {
+  ...PROJECTOR_SKY_CONFIG,
+  projectionMode: "map",
+  mirrorX: false,
+  showAirport: true,
+  rangeRings: true,
+  compass: true,
+  showStars: false,
+  showSun: false,
+  showMoon: false,
+  showSatellites: false,
+  showPlanets: false,
+  labelDensity: "nearestN",
+  nearestN: 3,
+};
 function requestedDeckView(): WideDeckView {
   const requested = new URLSearchParams(window.location.search).get("view");
   return requested === "sky" || requested === "overhead" ? "overhead" : "runway";
@@ -76,7 +93,9 @@ export function Display() {
   const { state, conn } = useStream("display");
   const ambient = useAmbientMode();
   const projectorMode = projectorRequested();
+  const companion = useProjectorCompanion(projectorMode);
   const [deckView, setDeckView] = useState<DeckView>(requestedDeckView);
+  const [projectorAutoView, setProjectorAutoView] = useState<WideDeckView>("overhead");
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
   const lastWideViewRef = useRef<WideDeckView>(requestedDeckView());
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -107,8 +126,24 @@ export function Display() {
         nearestN: 5,
       }
     : null;
+  const projectorView: WideDeckView = companion.scene === "auto"
+    ? projectorAutoView
+    : companion.scene === "runway"
+      ? "runway"
+      : "overhead";
+  const projectorBaseConfig = projectorView === "runway" ? PROJECTOR_RUNWAY_CONFIG : PROJECTOR_SKY_CONFIG;
+  const calibratedProjectorConfig = companion.calibration
+    ? {
+        ...projectorBaseConfig,
+        centerLat: companion.calibration.lat,
+        centerLon: companion.calibration.lon,
+        rotationDeg: companion.calibration.rotationDeg,
+        mirrorX: companion.calibration.mirrorX,
+        mirrorY: companion.calibration.mirrorY,
+      }
+    : projectorBaseConfig;
   const displayConfig = projectorMode
-    ? PROJECTOR_CONFIG
+    ? calibratedProjectorConfig
     : personalDeck
       ? followConfig ?? (deckView === "overhead" ? RIDDELLS_SKY_CONFIG : RIDDELLS_AIRSPACE_CONFIG)
       : (state.config ?? DEFAULT_CONFIG);
@@ -135,6 +170,15 @@ export function Display() {
     );
     return () => clearTimeout(timer);
   }, [autoSwitchViews, deckView, projectorMode]);
+
+  useEffect(() => {
+    if (!projectorMode || companion.scene !== "auto") return;
+    const timer = setTimeout(
+      () => setProjectorAutoView((current) => current === "runway" ? "overhead" : "runway"),
+      VIEW_SECONDS * 1000,
+    );
+    return () => clearTimeout(timer);
+  }, [companion.scene, projectorAutoView, projectorMode]);
 
   // If a followed aircraft leaves the feed, return to the last wide view.
   useEffect(() => {
@@ -163,6 +207,35 @@ export function Display() {
   useEffect(() => {
     rendererRef.current?.update(state.aircraft);
   }, [state.now, state.aircraft]);
+
+  useEffect(() => {
+    rendererRef.current?.setSelectedAircraft(
+      projectorMode && companion.scene === "follow" ? companion.selectedHex ?? null : null,
+    );
+  }, [companion.scene, companion.selectedHex, projectorMode]);
+
+  const missingFollowSnapshots = useRef(0);
+  useEffect(() => {
+    if (!projectorMode || companion.scene !== "follow" || !companion.selectedHex || !state.now) {
+      missingFollowSnapshots.current = 0;
+      return;
+    }
+    const present = state.aircraft.some((aircraft) => aircraft.hex === companion.selectedHex)
+      || state.nearbyAircraft.some((aircraft) => aircraft.hex === companion.selectedHex);
+    missingFollowSnapshots.current = present ? 0 : missingFollowSnapshots.current + 1;
+    if (missingFollowSnapshots.current >= 2) {
+      missingFollowSnapshots.current = 0;
+      companion.fallbackToOverhead("Selected aircraft left the live area");
+    }
+  }, [
+    companion.fallbackToOverhead,
+    companion.scene,
+    companion.selectedHex,
+    projectorMode,
+    state.aircraft,
+    state.nearbyAircraft,
+    state.now,
+  ]);
 
   // Track histories are local coordinates, so changing viewpoint needs a
   // clean re-projection rather than carrying Melbourne-relative samples home.
@@ -243,11 +316,19 @@ export function Display() {
   return (
     <div className={`display-root${projectorMode ? " projector-mode" : ""}`}>
       {projectorMode ? (
-        <canvas
-          ref={canvasRef}
-          className="display-canvas projector-canvas"
-          aria-label="Live overhead aircraft projector view"
-        />
+        <>
+          <canvas
+            ref={canvasRef}
+            className="display-canvas projector-canvas"
+            aria-label="Live overhead aircraft projector view"
+          />
+          <ProjectorPairing
+            pairUrl={companion.pairUrl}
+            connected={companion.connected}
+            controllerConnected={companion.controllerConnected}
+            error={companion.error}
+          />
+        </>
       ) : (
         <FlightDeck
           canvasRef={canvasRef}

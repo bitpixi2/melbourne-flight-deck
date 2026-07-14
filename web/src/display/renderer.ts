@@ -204,6 +204,8 @@ export class Renderer {
   private nextFrameDue = 0;
   /** Current frame time in seconds, for animating props/rotors. */
   private frameT = 0;
+  /** Optional aircraft selected by Brenton's phone controls. */
+  private selectedHex: string | null = null;
 
   // Sky layer state.
   private tles: Tle[] = [];
@@ -300,6 +302,10 @@ export class Renderer {
   setSourceOk(ok: boolean): void {
     if (ok) this.sourceDownAt = null;
     else this.sourceDownAt ??= performance.now();
+  }
+
+  setSelectedAircraft(hex: string | null): void {
+    this.selectedHex = hex;
   }
 
   /** Feed a fresh snapshot. Stamps each fix with local arrival time. */
@@ -493,8 +499,26 @@ export class Renderer {
       visible.push({ tr, sample, sky, p, heading, rangeMi, alpha, color, emergency, sizeScale });
     }
 
-    // Nearest last so it paints on top.
-    visible.sort((a, b) => b.rangeMi - a.rangeMi);
+    const selectedVisible = this.selectedHex
+      ? visible.find((entry) => entry.tr.ac.hex === this.selectedHex)
+      : undefined;
+    if (selectedVisible) {
+      for (const entry of visible) {
+        if (entry === selectedVisible) {
+          entry.alpha = Math.max(entry.alpha, 0.92 * cfg.brightness);
+          entry.sizeScale *= 1.28;
+        } else {
+          entry.alpha *= 0.24;
+        }
+      }
+    }
+
+    // Nearest last so it paints on top; a phone-selected flight is always last.
+    visible.sort((a, b) => {
+      if (a === selectedVisible) return 1;
+      if (b === selectedVisible) return -1;
+      return b.rangeMi - a.rangeMi;
+    });
     this.hitTargets = visible.map((v) => ({
       hex: v.tr.ac.hex,
       x: v.p.x,
@@ -1132,7 +1156,8 @@ export class Renderer {
       const b = pts[i];
       const f = 1 - b.age; // 1 at head, 0 at tail
       ctx.strokeStyle = rgba(v.color, cfg.trailOpacity * f * v.alpha);
-      ctx.lineWidth = 0.7 + 2.2 * f * (cfg.glyphSizePx / 14);
+      const selectedBoost = this.selectedHex === v.tr.ac.hex ? 1.75 : 1;
+      ctx.lineWidth = (0.7 + 2.2 * f * (cfg.glyphSizePx / 14)) * selectedBoost;
       ctx.beginPath();
       ctx.moveTo(a.p.x, a.p.y);
       ctx.lineTo(b.p.x, b.p.y);
@@ -1150,6 +1175,16 @@ export class Renderer {
 
     ctx.save();
     ctx.translate(v.p.x, v.p.y);
+    if (this.selectedHex === v.tr.ac.hex) {
+      const pulse = 1 + Math.sin(this.frameT * 3.2) * 0.08;
+      ctx.beginPath();
+      ctx.arc(0, 0, s * 2.35 * pulse, 0, Math.PI * 2);
+      ctx.strokeStyle = rgba(hexToRgb(cfg.palette.accent), 0.72 * v.alpha);
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([5, 7]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
     ctx.rotate(v.heading + Math.PI / 2);
 
     // Soft halo — restrained so the silhouette reads as an aircraft.

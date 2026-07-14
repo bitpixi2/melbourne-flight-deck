@@ -1,0 +1,19 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "brentons-ceiling-relay",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-14",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://skylight-melbourne.vercel.app,https://brentons-overhead.vercel.app,https://brentons-ceiling-controls.vercel.app,http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5184,http://127.0.0.1:5184,http://localhost:5193,http://127.0.0.1:5193,http://localhost:4173,http://127.0.0.1:4173"
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "PAIRING_ROOMS", "class_name": "PairingRoom" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["PairingRoom"] }
+  ],
+  "observability": { "enabled": true }
+}

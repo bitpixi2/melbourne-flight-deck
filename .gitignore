@@ -30,6 +30,8 @@ tracker/models/
 .playwright-cli/
 output/
 .vercel/
+.wrangler/
+relay/.wrangler-test/
 
 # stream credentials (instance env files) — examples stay committed
 stream/.env*
