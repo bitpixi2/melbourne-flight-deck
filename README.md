@@ -1,10 +1,15 @@
-# Brenton's Flight Deck
+# Melbourne Flight Deck
 
-Brenton's Flight Deck is a live Melbourne airspace and night-sky display made for
+## aka Brenton's Flight Deck
+
+Melbourne Flight Deck is a live Melbourne airspace and night-sky display made for
 an existing TV or touchscreen, an inexpensive ceiling projector, or a brighter
-Raspberry Pi-powered premium installation. It combines real-time aircraft around
-the viewing area and Melbourne Airport (Tullamarine) with current weather, local
-time, and the sky overhead. This is a Melbourne-focused fork of
+Raspberry Pi-powered premium installation. Its viewpoint is positioned over
+Brenton's town in Victoria, not directly over Melbourne Airport (Tullamarine),
+and combines real-time aircraft around that viewpoint with airport context,
+current weather, local time, and the sky overhead. Customising it for another town
+or home requires a new fork with its viewpoint changed. This is a Melbourne-focused
+fork of
 [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
 ### Cost at a glance
