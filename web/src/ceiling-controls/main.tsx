@@ -13,7 +13,7 @@ document.head.append(theme);
 
 const description = document.createElement("meta");
 description.name = "description";
-description.content = "Private mobile flight deck and ceiling controls for Brenton's Overhead.";
+description.content = "Private mobile flight deck for Brenton's Option 4 ceiling projector.";
 document.head.append(description);
 
 const manifest = document.createElement("link");

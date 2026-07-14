@@ -84,6 +84,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .install-note { margin-top: 0 !important; }
 .controls-error { position: sticky; bottom: max(12px, env(safe-area-inset-bottom)); margin: 12px 0; padding: 11px; color: #ffc1b7; border: 1px solid rgba(255,128,111,.4); border-radius: 10px; background: rgba(67,17,13,.92); font-size: 11px; text-align: center; }
 .ceiling-controls footer { padding: 22px 0 0; color: #41585e; font: 700 8px ui-monospace, monospace; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+.ceiling-controls footer a { color: #66858c; }
 .controls-loading, .controls-onboarding { display: flex; width: min(100%, 520px); min-height: 100dvh; margin: 0 auto; flex-direction: column; align-items: center; justify-content: center; padding: max(30px, env(safe-area-inset-top)) 26px max(30px, env(safe-area-inset-bottom)); text-align: center; }
 .controls-loader { width: 44px; height: 44px; border: 2px solid rgba(109,228,239,.16); border-top-color: var(--cyan); border-radius: 50%; animation: controls-spin 1s linear infinite; }
 .controls-loading p { color: var(--muted); font-size: 12px; }
@@ -96,5 +97,6 @@ button { -webkit-tap-highlight-color: transparent; }
 .controls-onboarding li { display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel); color: #b9cdd1; font-size: 12px; }
 .controls-onboarding li span { display: grid; width: 26px; height: 26px; flex: 0 0 26px; place-items: center; color: var(--cyan); border: 1px solid rgba(109,228,239,.35); border-radius: 50%; font: 700 10px ui-monospace, monospace; }
 .controls-onboarding > small { color: #546d73; font: 700 8px ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.controls-demo-link { width: 100%; margin: 0 0 18px; padding: 14px; color: var(--cyan); border: 1px solid rgba(109,228,239,.38); border-radius: 11px; background: rgba(16,83,92,.22); text-decoration: none; font-size: 12px; font-weight: 700; }
 @media (min-width: 600px) { .ceiling-controls { padding-inline: 24px; } .selected-flight { padding: 24px; } .scene-section, .nearby-section { padding: 22px; } }
 @media (max-width: 370px) { .controls-header h1 { font-size: 27px; } .status-stack span { font-size: 7px; } .scene-grid { grid-template-columns: 1fr; } .flight-list button { grid-template-columns: 32px minmax(0,1fr) 40px 18px; } .flight-list-alt { display: none; } }

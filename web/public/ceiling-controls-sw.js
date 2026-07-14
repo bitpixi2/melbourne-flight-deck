@@ -1,5 +1,5 @@
-const CACHE = "brentons-ceiling-controls-v1";
-const SHELL = ["/", "/ceiling-controls.webmanifest", "/ceiling-controls-icon-192.png", "/ceiling-controls-icon-512.png"];
+const CACHE = "brentons-ceiling-controls-v2";
+const SHELL = ["/", "/demo", "/ceiling-controls.webmanifest", "/ceiling-controls-icon-192.png", "/ceiling-controls-icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -13,7 +13,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match("/")));
+    const fallback = url.pathname.startsWith("/demo") ? "/demo" : "/";
+    event.respondWith(fetch(event.request).catch(() => caches.match(fallback)));
     return;
   }
   event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {

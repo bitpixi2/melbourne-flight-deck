@@ -12,6 +12,7 @@ import { FlightDeck, type DeckView, type WideDeckView } from "./FlightDeck.js";
 import { Renderer } from "./renderer.js";
 import { ProjectorPairing } from "../companion/ProjectorPairing.js";
 import { useProjectorCompanion } from "../companion/useCompanion.js";
+import { PROJECTOR_RUNWAY_CONFIG, PROJECTOR_SKY_CONFIG } from "./projectorConfig.js";
 
 const THEMES: Theme[] = ["ambient", "telemetry", "focus"];
 const VIEW_SECONDS = 45;
@@ -41,49 +42,6 @@ const RIDDELLS_SKY_CONFIG: Config = {
   projectionMode: "sky",
   showAirport: false,
 };
-const PROJECTOR_SKY_CONFIG: Config = {
-  ...RIDDELLS_SKY_CONFIG,
-  mirrorX: true,
-  showAirport: false,
-  rangeRings: false,
-  compass: false,
-  showStars: true,
-  showSun: true,
-  showMoon: true,
-  showSatellites: true,
-  showPlanets: true,
-  showDestArc: false,
-  showRouteDetail: false,
-  glyphSizePx: 28,
-  trailSeconds: 75,
-  trailOpacity: 0.72,
-  labelDensity: "nearestOnly",
-  nearestN: 1,
-  showFields: {
-    name: true,
-    type: true,
-    altitude: true,
-    speed: true,
-    verticalRate: false,
-    destination: false,
-    registration: false,
-  },
-};
-const PROJECTOR_RUNWAY_CONFIG: Config = {
-  ...PROJECTOR_SKY_CONFIG,
-  projectionMode: "map",
-  mirrorX: false,
-  showAirport: true,
-  rangeRings: true,
-  compass: true,
-  showStars: false,
-  showSun: false,
-  showMoon: false,
-  showSatellites: false,
-  showPlanets: false,
-  labelDensity: "nearestN",
-  nearestN: 3,
-};
 function requestedDeckView(): WideDeckView {
   const requested = new URLSearchParams(window.location.search).get("view");
   return requested === "sky" || requested === "overhead" ? "overhead" : "runway";
@@ -93,7 +51,11 @@ export function Display() {
   const { state, conn } = useStream("display");
   const ambient = useAmbientMode();
   const projectorMode = projectorRequested();
-  const companion = useProjectorCompanion(projectorMode);
+  // Pairing is opt-in so the original Brenton's Overhead deployment remains
+  // a completely clean, standalone ceiling. Only the Option 4 projector build
+  // sets this flag.
+  const companionEnabled = projectorMode && import.meta.env.VITE_COMPANION_ENABLED === "1";
+  const companion = useProjectorCompanion(companionEnabled);
   const [deckView, setDeckView] = useState<DeckView>(requestedDeckView);
   const [projectorAutoView, setProjectorAutoView] = useState<WideDeckView>("overhead");
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
@@ -126,7 +88,9 @@ export function Display() {
         nearestN: 5,
       }
     : null;
-  const projectorView: WideDeckView = companion.scene === "auto"
+  const projectorView: WideDeckView = !companionEnabled
+    ? "overhead"
+    : companion.scene === "auto"
     ? projectorAutoView
     : companion.scene === "runway"
       ? "runway"
@@ -172,13 +136,13 @@ export function Display() {
   }, [autoSwitchViews, deckView, projectorMode]);
 
   useEffect(() => {
-    if (!projectorMode || companion.scene !== "auto") return;
+    if (!companionEnabled || companion.scene !== "auto") return;
     const timer = setTimeout(
       () => setProjectorAutoView((current) => current === "runway" ? "overhead" : "runway"),
       VIEW_SECONDS * 1000,
     );
     return () => clearTimeout(timer);
-  }, [companion.scene, projectorAutoView, projectorMode]);
+  }, [companion.scene, companionEnabled, projectorAutoView]);
 
   // If a followed aircraft leaves the feed, return to the last wide view.
   useEffect(() => {
@@ -210,13 +174,13 @@ export function Display() {
 
   useEffect(() => {
     rendererRef.current?.setSelectedAircraft(
-      projectorMode && companion.scene === "follow" ? companion.selectedHex ?? null : null,
+      companionEnabled && companion.scene === "follow" ? companion.selectedHex ?? null : null,
     );
-  }, [companion.scene, companion.selectedHex, projectorMode]);
+  }, [companion.scene, companion.selectedHex, companionEnabled]);
 
   const missingFollowSnapshots = useRef(0);
   useEffect(() => {
-    if (!projectorMode || companion.scene !== "follow" || !companion.selectedHex || !state.now) {
+    if (!companionEnabled || companion.scene !== "follow" || !companion.selectedHex || !state.now) {
       missingFollowSnapshots.current = 0;
       return;
     }
@@ -231,7 +195,7 @@ export function Display() {
     companion.fallbackToOverhead,
     companion.scene,
     companion.selectedHex,
-    projectorMode,
+    companionEnabled,
     state.aircraft,
     state.nearbyAircraft,
     state.now,
@@ -322,12 +286,14 @@ export function Display() {
             className="display-canvas projector-canvas"
             aria-label="Live overhead aircraft projector view"
           />
-          <ProjectorPairing
-            pairUrl={companion.pairUrl}
-            connected={companion.connected}
-            controllerConnected={companion.controllerConnected}
-            error={companion.error}
-          />
+          {companionEnabled && (
+            <ProjectorPairing
+              pairUrl={companion.pairUrl}
+              connected={companion.connected}
+              controllerConnected={companion.controllerConnected}
+              error={companion.error}
+            />
+          )}
         </>
       ) : (
         <FlightDeck

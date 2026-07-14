@@ -165,12 +165,13 @@ export function CeilingControls() {
         <div className="onboarding-orbit" aria-hidden="true"><span>✈</span></div>
         <p className="eyebrow">Private ceiling link</p>
         <h1>Brenton's<br />Ceiling Controls</h1>
-        <p className="onboarding-lead">Scan the QR code shown by Brenton’s Overhead projector to pair this phone.</p>
+        <p className="onboarding-lead">Scan the QR code shown by the Option 4 ceiling projector to pair this phone.</p>
         <ol>
-          <li><span>1</span>Open the overhead display on the projector.</li>
+          <li><span>1</span>Open the Option 4 projector display.</li>
           <li><span>2</span>Scan its private QR code with this phone.</li>
           <li><span>3</span>Choose what appears on the ceiling.</li>
         </ol>
+        <a className="controls-demo-link" href="/demo">Try the no-pairing demo</a>
         <small>No account · one private controller · no screen mirroring</small>
       </main>
     );
@@ -285,7 +286,7 @@ export function CeilingControls() {
       </details>
 
       {controls.error && <div className="controls-error">{controls.error}</div>}
-      <footer>Brenton's Flight Deck · private ceiling link</footer>
+      <footer>Brenton's Flight Deck · private ceiling link · <a href="/demo">demo</a></footer>
     </main>
   );
 }
