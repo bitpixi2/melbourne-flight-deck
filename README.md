@@ -2,19 +2,20 @@
 
 A live flight display for Victoria, adaptable between a regular TV or touchscreen
 and a fullscreen ceiling installation using an inexpensive vertical projector at
-about the $100 mark. It combines real aircraft positions around the viewing area
-and Melbourne Airport with a current sky map, local weather, and clocks.
+around the A$100–A$150 mark. It combines real aircraft positions around the
+viewing area and Melbourne Airport with a current sky map, local weather, and clocks.
 
 This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
 ## Display options
 
-### Option 1 — TV dashboard
+### Option 1 — TV dashboard (Free)
 
 ![Brenton's Flight Deck running as the full interactive TV dashboard](docs/brentons-flight-deck-tv.png)
 
 Use the full 16:9 dashboard on a regular TV, Echo Show 15, or framed touchscreen
-in either of these ways:
+at no extra hardware or subscription cost when using a screen and internet
+connection you already have. Open it in either of these ways:
 
 - **TV browser:** open the [public Kiosk 1 dashboard](https://skylight-melbourne.vercel.app/?kiosk=1)
   directly in the TV's built-in browser.
@@ -35,7 +36,7 @@ The airline logo SVGs shown in the dashboard are provided by
 Anh Thang and distributed under the MIT license. Airline names and logos remain
 trademarks of their respective owners.
 
-### Option 2 — Overhead Projector
+### Option 2 — Overhead Projector (About A$150)
 
 ![Brenton's Overhead running as the minimal ceiling projector view](docs/brentons-overhead-projector.png)
 
@@ -50,8 +51,9 @@ wake lock immediately and enters fullscreen on its first tap.
 [![Kimwood vertical projector showing ceiling-scale projection sizes](docs/kimwood-projector-example.png)](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM)
 
 [View the Kimwood projector on Amazon Australia](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM).
-This is an example of the inexpensive rotating-projector style suited to the
-ceiling setup; availability and pricing can change.
+The linked model is currently available from A$145.99. It is an example of the
+inexpensive rotating-projector style suited to the ceiling setup; availability
+and pricing can change.
 
 ### Option 3 — Overhead Projector Premium
 
