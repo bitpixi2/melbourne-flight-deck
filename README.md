@@ -67,9 +67,18 @@ into Kiosk 2, so the projector only needs to provide a reliable HDMI image.
 | Vertical projector | [ViewSonic LSD400HD](https://www.viewsonic.com/ap/products/projectors/LSD400HD?app=1) — Full HD laser, 4,000 ANSI lumens, 360-degree projection and 1.48–1.62 standard throw | [$1,499 sale](https://justprojectors.com.au/viewsoniclsd400hd.htm) |
 | Blackout curtains | Room-darkening curtains or blinds for stronger daytime contrast | Varies by room |
 | Installation | Secure 360-degree-compatible stand or mount and cabling | $100–$250 |
-| Optional local ADS-B | RTL-SDR and antenna kit for locally received 1090 MHz aircraft data; a better dedicated antenna can be added for greater range. [How ADS-B works](https://www.casa.gov.au/operations-safety-and-travel/airspace/automatic-dependent-surveillance-broadcast-ads-b/how-ads-b-works) | $105 basic; $145–$205 upgraded |
-| Optional airband audio | A second RTL-SDR permits simultaneous ADS-B and 118–137 MHz voice reception, or use a receive-only [XHData D-808](https://www.tecsunradios.com.au/store/product/xhdata-d-808-lw-mw-sw-fm-airband-receiver/) | $105–$185 |
-| **Estimated total** | Pi setup with the ViewSonic; excludes curtains, optional radio equipment, installation labour and internet service | **$1,800–$2,000 + curtains** |
+| **Estimated total** | Pi setup with the ViewSonic; excludes curtains, optional local receivers, installation labour and internet service | **$1,800–$2,000 + curtains** |
+
+#### Optional local receivers
+
+| **Local ADS-B — FlightAware Pro Stick Plus** | **Airband audio — XHData D-808** |
+|---|---|
+| [<img src="docs/flightaware-pro-stick-plus.jpg" alt="FlightAware Pro Stick Plus USB ADS-B receiver" width="100%">](https://core-electronics.com.au/flightaware-pro-stick-plus-usb-sdr-ads-b-receiver.html) | [<img src="docs/xhdata-d808-airband-receiver.jpg" alt="XHData D-808 airband receiver" width="100%">](https://www.tecsunradios.com.au/store/product/xhdata-d-808-lw-mw-sw-fm-airband-receiver/) |
+| **A$98.75 receiver; antenna from A$14.70.** This USB SDR adds directly received local 1090 MHz aircraft positions to the Pi setup. It has a built-in RF amplifier and 1090 MHz filter and works with Skylight's local receiver mode. Add a separate [1090 MHz SMA antenna](https://core-electronics.com.au/3dbi-ads-b-1090mhz-sma-antenna-w-magnetic-base-1.html). | **A$185 standalone receiver.** Listen to nearby 118–137 MHz VHF airband traffic through its own speaker. It includes squelch to quiet the background between transmissions and runs separately while the FlightAware stick remains dedicated to ADS-B. |
+
+Both are optional receive-only additions; the public live feeds continue to work
+without them. The FlightAware receiver supplies aircraft data, while the D-808
+supplies radio audio.
 
 The optional radio equipment is receive-only. [ACMA says](https://www.acma.gov.au/apparatus-licences)
 a receiver only needs an apparatus licence when an assigned frequency is required.
