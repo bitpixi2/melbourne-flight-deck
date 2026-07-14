@@ -81,6 +81,52 @@ first pointer gesture. A deployment built with `VITE_DEFAULT_KIOSK=2` opens this
 projector presentation by default, which is how the separate projector website
 is published.
 
+#### Example vertical projector
+
+[![Kimwood vertical projector showing ceiling-scale projection sizes](docs/kimwood-projector-example.png)](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM)
+
+[View the Kimwood projector on Amazon Australia](https://www.amazon.com.au/Kimwood-Projector-Bluetooth-Ultra-Projectors/dp/B0G1S78RNM).
+This is an example of the inexpensive rotating-projector style suited to the
+ceiling setup; availability and pricing can change.
+
+### Option 3 — Overhead Projector Premium
+
+For a brighter, more permanent ceiling installation, use a Raspberry Pi as the
+dedicated player and a Full HD standard-throw projector. The Pi boots directly
+into Kiosk 2, so the projector only needs to provide a reliable HDMI image.
+
+#### Suggested equipment
+
+| Part | Suggested choice | Estimated cost (AUD) |
+|---|---|---:|
+| Player | [Raspberry Pi 4 Model B, 4 GB](https://core-electronics.com.au/raspberry-pi-4-model-b-4gb.html) | $163 |
+| Pi essentials | Official power supply, case, 32 GB microSD card and micro-HDMI cable | $50–$80 |
+| Brighter projector | [Epson CO-FH02](https://www.epson.com.au/products/projectors-for-home/home-theatre/CO-FH02) — Full HD, 3,000-lumen, 1.19–1.61 standard throw | $1,099 |
+| Installation | Secure mount or shelf, cabling and an optional first-surface mirror | $100–$250 |
+| **Estimated total** | Excluding installation labour and internet service | **$1,400–$1,600** |
+
+Prices were checked in Australia on 14 July 2026 and will change. The projector
+is the main cost; an existing suitable projector can reduce the total
+substantially.
+
+#### Installation plan
+
+1. **Measure first.** Choose the ceiling image area and measure the full optical
+   path from the projector to that area. The CO-FH02 produces a 60-inch image at
+   approximately 1.58 m; use Epson's distance calculator before fixing a mount.
+2. **Plan the upward image safely.** Keep the projector in an orientation allowed
+   by its manufacturer, leave its vents clear and use a properly secured mount
+   or shelf. If direct lens-up operation is not supported, keep it horizontal
+   and use a 45-degree first-surface mirror to turn the image onto the ceiling.
+3. **Prepare the Pi.** Install Raspberry Pi OS with Desktop on the microSD card,
+   connect Wi-Fi or Ethernet, and connect the Pi to the projector over HDMI.
+4. **Make it appliance-like.** Configure Chromium to open
+   `https://brentons-overhead.vercel.app` in kiosk mode at login, disable screen
+   blanking and restart the browser automatically if it exits.
+5. **Align and test.** Focus the ceiling image, minimise digital keystone, confirm
+   the Kiosk 2 flight feed updates, and run the complete system for several hours
+   while checking temperature, ventilation and network recovery.
+
 Both public displays use only an approximate viewpoint in Victoria. They do not
 show or store a household name, street address, or house-level coordinate.
 
