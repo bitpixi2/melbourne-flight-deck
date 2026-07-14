@@ -3,16 +3,15 @@
 Brenton's Flight Deck is a live Melbourne airspace and night-sky display made for
 an existing TV or touchscreen, an inexpensive ceiling projector, or a brighter
 Raspberry Pi-powered premium installation. It combines real-time aircraft around
-the viewing area and Melbourne Airport with current weather, local time, and the
-sky overhead.
+the viewing area and Melbourne Airport (Tullamarine) with current weather, local
+time, and the sky overhead. This is a Melbourne-focused fork of
+[cpaczek/skylight](https://github.com/cpaczek/skylight).
 
 ### Cost at a glance
 
 | **Option 1 — TV dashboard** | **Option 2 — Overhead projector** | **Option 3 — Premium overhead projector** |
 |:---:|:---:|:---:|
 | **Free** | **About A$150** | **A$1,800–A$2,000 + curtains** |
-
-This is a Melbourne-focused fork of [cpaczek/skylight](https://github.com/cpaczek/skylight).
 
 ## Live data
 
