@@ -87,6 +87,11 @@ interface SkyLabelEntry {
   priority: number;
 }
 
+interface SkyObstacle {
+  p: Point;
+  radius: number;
+}
+
 interface Sample {
   t: number; // performance.now() at arrival
   m: Meters;
@@ -881,6 +886,7 @@ export class Renderer {
     const ctx = this.ctx;
     const b = cfg.brightness;
     const skyLabels: SkyLabelEntry[] = [];
+    const skyObstacles: SkyObstacle[] = [];
 
     // Asterism lines (faint) — need star screen points by id.
     if (cfg.showStars && this.sky.stars.length) {
@@ -919,6 +925,7 @@ export class Renderer {
         }
         ctx.fill();
         ctx.shadowBlur = 0;
+        skyObstacles.push({ p, radius: mag < 0.6 ? size * 3 + 2 : size + 2 });
         if (mag < cfg.starLabelMagLimit && s.name) {
           skyLabels.push({
             p,
@@ -933,11 +940,14 @@ export class Renderer {
     }
 
     if (cfg.showMoon && this.sky.moon && this.sky.moon.alt > -2) {
-      this.drawMoon(this.projectSky(this.sky.moon.az, this.sky.moon.alt, cfg, proj),
-        this.sky.moon.illum ?? 1, this.sky.moon.waning ?? false, b);
+      const p = this.projectSky(this.sky.moon.az, this.sky.moon.alt, cfg, proj);
+      this.drawMoon(p, this.sky.moon.illum ?? 1, this.sky.moon.waning ?? false, b);
+      skyObstacles.push({ p, radius: 23 });
     }
     if (cfg.showSun && this.sky.sun && this.sky.sun.alt > -2) {
-      this.drawSun(this.projectSky(this.sky.sun.az, this.sky.sun.alt, cfg, proj), b);
+      const p = this.projectSky(this.sky.sun.az, this.sky.sun.alt, cfg, proj);
+      this.drawSun(p, b);
+      skyObstacles.push({ p, radius: 28 });
     }
     if (cfg.showPlanets && this.sky.planets.length) {
       for (const pl of this.sky.planets) {
@@ -955,6 +965,7 @@ export class Renderer {
         }
         ctx.fill();
         ctx.shadowBlur = 0;
+        skyObstacles.push({ p, radius: mag < 0.5 ? size * 2.5 + 4 : size + 4 });
         if (pl.name) {
           skyLabels.push({
             p,
@@ -984,6 +995,7 @@ export class Renderer {
         }
         ctx.fill();
         ctx.shadowBlur = 0;
+        skyObstacles.push({ p, radius: iss ? 12 : size + 3 });
         if (iss) {
           skyLabels.push({
             p,
@@ -1006,7 +1018,7 @@ export class Renderer {
       }
     }
 
-    if (skyLabels.length) this.placeSkyLabels(skyLabels, cfg);
+    if (skyLabels.length) this.placeSkyLabels(skyLabels, skyObstacles, cfg);
   }
 
   private drawSun(p: Point, b: number): void {
@@ -1139,16 +1151,22 @@ export class Renderer {
       { anchor: { x: p.x - d, y: p.y + d }, align: "right" },
       { anchor: { x: p.x, y: p.y - v }, align: "center" },
       { anchor: { x: p.x, y: p.y + v }, align: "center" },
-      { anchor: { x: p.x + farD, y: p.y - farD }, align: "left" },
       { anchor: { x: p.x - farD, y: p.y - farD }, align: "right" },
+      { anchor: { x: p.x + farD, y: p.y - farD }, align: "left" },
     ];
   }
 
-  /** Place sky-object labels so they never overlap each other. */
-  private placeSkyLabels(entries: SkyLabelEntry[], cfg: Config): void {
+  /** Place sky-object labels clear of both other labels and luminous bodies. */
+  private placeSkyLabels(entries: SkyLabelEntry[], obstacles: SkyObstacle[], cfg: Config): void {
     const placed: { x: number; y: number; w: number; h: number }[] = [];
     const onScreen = (b: { x: number; y: number; w: number; h: number }) =>
       b.x >= 6 && b.x + b.w <= this.w - 6 && b.y >= 6 && b.y + b.h <= this.h - 6;
+    const overlapsBody = (box: { x: number; y: number; w: number; h: number }) =>
+      obstacles.some(({ p, radius }) => {
+        const closestX = Math.max(box.x, Math.min(p.x, box.x + box.w));
+        const closestY = Math.max(box.y, Math.min(p.y, box.y + box.h));
+        return Math.hypot(p.x - closestX, p.y - closestY) < radius;
+      });
 
     const sorted = [...entries].sort((a, b) => a.priority - b.priority);
 
@@ -1160,7 +1178,7 @@ export class Renderer {
       let chosen: Slot | null = null;
       for (const slot of slots) {
         const box = this.skyLabelBox(slot.anchor, w, h, slot.align);
-        if (onScreen(box) && !this.collides(box, placed)) {
+        if (onScreen(box) && !this.collides(box, placed) && !overlapsBody(box)) {
           chosen = slot;
           placed.push(box);
           break;
@@ -1169,7 +1187,7 @@ export class Renderer {
       if (!chosen) {
         let slot = slots[0];
         let box = this.skyLabelBox(slot.anchor, w, h, slot.align);
-        for (let k = 0; k < 10 && (this.collides(box, placed) || !onScreen(box)); k++) {
+        for (let k = 0; k < 10 && (this.collides(box, placed) || overlapsBody(box) || !onScreen(box)); k++) {
           slot = {
             anchor: { x: slot.anchor.x, y: slot.anchor.y - (h + SKY_LABEL_GAP) },
             align: slot.align,
@@ -1313,13 +1331,34 @@ export class Renderer {
   private placedBoxes: { x: number; y: number; w: number; h: number }[] = [];
 
   private drawLabels(cfg: Config, nearestFirst: Visible[]): void {
+    this.placedBoxes = [];
+
+    // Projector mode shows one high-contrast label at a time and gently
+    // crossfades through the nearest aircraft. Every glyph stays visible;
+    // only the annotated aircraft changes.
+    if (cfg.labelCycleSeconds > 0 && nearestFirst.length) {
+      const pool = nearestFirst.slice(0, Math.max(1, cfg.nearestN));
+      const position = this.frameT / cfg.labelCycleSeconds;
+      const index = Math.floor(position) % pool.length;
+      const progress = position - Math.floor(position);
+      const fadeStart = 0.84;
+
+      if (pool.length > 1 && progress > fadeStart) {
+        const nextStrength = (progress - fadeStart) / (1 - fadeStart);
+        this.drawLabel(cfg, pool[index], 1 - nextStrength);
+        this.drawLabel(cfg, pool[(index + 1) % pool.length], nextStrength);
+      } else {
+        this.drawLabel(cfg, pool[index], 1);
+      }
+      return;
+    }
+
     const limit =
       cfg.labelDensity === "all"
         ? nearestFirst.length
         : cfg.labelDensity === "nearestN"
           ? cfg.nearestN
           : 1;
-    this.placedBoxes = [];
     for (let i = 0; i < Math.min(limit, nearestFirst.length); i++) {
       // Nearest labels brightest; gently dim further ones (but keep readable).
       const prom = 1 - i / Math.max(1, nearestFirst.length);
@@ -1376,7 +1415,10 @@ export class Renderer {
     const ctx = this.ctx;
     const lines = labelLines(cfg, v.tr.ac);
     if (!lines.length) return;
-    const a = v.alpha * strength;
+    const cycling = cfg.labelCycleSeconds > 0;
+    const a = cycling
+      ? Math.max(v.alpha, 0.9 * cfg.brightness) * strength
+      : v.alpha * strength;
     if (a < 0.04) return;
 
     const { w, lh, h } = this.measureLabel(cfg, lines);
@@ -1428,9 +1470,9 @@ export class Renderer {
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
       ctx.shadowColor = "rgba(0,0,0,0.9)";
-      ctx.shadowBlur = 6;
+      ctx.shadowBlur = cycling ? 9 : 6;
       ctx.strokeStyle = rgba(hexToRgb(cfg.palette.bg), a);
-      ctx.lineWidth = 3;
+      ctx.lineWidth = cycling ? 4 : 3;
       ctx.lineJoin = "round";
 
       const scale = cfg.textScale ?? 1;
@@ -1440,7 +1482,7 @@ export class Renderer {
       let lastLineKind;
       for (const ln of lines) {
         if (ln.kind === "title") {
-          ctx.font = `500 ${titlePx}px ${cfg.fonts.label}`;
+          ctx.font = `${cycling ? 650 : 500} ${titlePx}px ${cfg.fonts.label}`;
           ctx.fillStyle = rgba([245, 247, 255], a);
           try {
             ctx.letterSpacing = "1.5px";
@@ -1448,8 +1490,8 @@ export class Renderer {
             /* noop */
           }
         } else {
-          ctx.font = `400 ${subPx}px ${cfg.fonts.label}`;
-          ctx.fillStyle = rgba(hexToRgb(cfg.palette.text), 0.82 * a);
+          ctx.font = `${cycling ? 500 : 400} ${subPx}px ${cfg.fonts.label}`;
+          ctx.fillStyle = rgba(hexToRgb(cfg.palette.text), (cycling ? 0.98 : 0.82) * a);
           try {
             ctx.letterSpacing = "0.5px";
           } catch {

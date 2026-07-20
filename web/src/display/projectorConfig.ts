@@ -32,12 +32,13 @@ export const PROJECTOR_SKY_CONFIG: Config = {
   trailSeconds: 75,
   trailOpacity: 0.72,
   labelDensity: "nearestOnly",
-  nearestN: 1,
+  nearestN: 6,
+  labelCycleSeconds: 12,
   showFields: {
     name: true,
     type: true,
-    altitude: true,
-    speed: true,
+    altitude: false,
+    speed: false,
     verticalRate: false,
     destination: true,
     registration: false,
@@ -62,4 +63,5 @@ export const PROJECTOR_RUNWAY_CONFIG: Config = {
   showPlanets: false,
   labelDensity: "nearestN",
   nearestN: 3,
+  labelCycleSeconds: 0,
 };

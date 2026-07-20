@@ -9,6 +9,8 @@ describe("overhead projector presentation", () => {
     expect(PROJECTOR_SKY_CONFIG.glyphSizePx).toBeGreaterThan(DEFAULT_CONFIG.glyphSizePx);
     expect(DEFAULT_CONFIG.textScale).toBe(1);
     expect(DEFAULT_CONFIG.glyphSizePx).toBe(22);
+    expect(PROJECTOR_SKY_CONFIG.labelCycleSeconds).toBe(12);
+    expect(DEFAULT_CONFIG.labelCycleSeconds).toBe(0);
   });
 
   it("places a verified airport route directly below the flight number", () => {
@@ -21,12 +23,16 @@ describe("overhead projector presentation", () => {
       lon: 145.0,
       destLat: -33.946,
       destLon: 151.177,
+      typeName: "Boeing 737-800",
+      altBaro: 17000,
+      gs: 430,
     } as Aircraft;
 
     const lines = labelLines(PROJECTOR_SKY_CONFIG, aircraft);
-    expect(lines.slice(0, 2)).toEqual([
+    expect(lines).toEqual([
       { text: "QF432", kind: "title" },
       { text: "MEL → SYD", kind: "sub" },
+      { text: "Boeing 737-800", kind: "sub" },
     ]);
   });
 });

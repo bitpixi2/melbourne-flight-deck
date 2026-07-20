@@ -301,6 +301,8 @@ export interface Config {
   // --- labels ---
   labelDensity: LabelDensity;
   nearestN: number;
+  /** Seconds between highlighted aircraft labels; 0 keeps labels static. */
+  labelCycleSeconds: number;
   showFields: ShowFields;
   nameDisplay: NameDisplay;
   locationDisplay: LocationDisplay;
@@ -402,6 +404,7 @@ export const DEFAULT_CONFIG: Config = {
 
   labelDensity: "all",
   nearestN: 5,
+  labelCycleSeconds: 0,
   showFields: {
     name: true,
     type: true,
