@@ -7,7 +7,12 @@ import {
   formatDistance,
 } from "@shared/index.js";
 import { useStream } from "../lib/useStream.js";
-import { kioskRequested, projectorRequested, useAmbientMode } from "../lib/useAmbientMode.js";
+import {
+  kioskPanelFullscreenRequested,
+  kioskRequested,
+  projectorRequested,
+  useAmbientMode,
+} from "../lib/useAmbientMode.js";
 import { FlightDeck, type DeckView, type WideDeckView } from "./FlightDeck.js";
 import { Renderer } from "./renderer.js";
 import { ProjectorPairing } from "../companion/ProjectorPairing.js";
@@ -61,6 +66,7 @@ export function Display() {
   const [selectedHex, setSelectedHex] = useState<string | null>(null);
   const lastWideViewRef = useRef<WideDeckView>(requestedDeckView());
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const radarPanelRef = useRef<HTMLElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const aircraftRef = useRef(state.aircraft);
   aircraftRef.current = state.aircraft;
@@ -121,8 +127,10 @@ export function Display() {
   configRef.current = displayConfig;
 
   // Latest ambient toggle in a ref so the keydown listener stays subscribed once.
-  const ambientToggleRef = useRef(ambient.toggle);
-  ambientToggleRef.current = ambient.toggle;
+  const panelFullscreen = kioskPanelFullscreenRequested();
+  const toggleFullscreen = () => ambient.toggle(panelFullscreen ? radarPanelRef.current : null);
+  const ambientToggleRef = useRef<() => void>(toggleFullscreen);
+  ambientToggleRef.current = toggleFullscreen;
 
   // Hosted TVs alternate between the airport plan and the observer's true
   // look-up sky. Following an aircraft pauses this until a wide view is chosen.
@@ -311,12 +319,14 @@ export function Display() {
       ) : (
         <FlightDeck
           canvasRef={canvasRef}
+          radarPanelRef={radarPanelRef}
           state={state}
           view={personalDeck ? deckView : cfg.projectionMode === "sky" ? "overhead" : "runway"}
           selectedHex={selectedHex}
           autoSwitching={autoSwitchViews && deckView !== "focus"}
           fullscreenActive={ambient.fullscreen}
-          onToggleFullscreen={ambient.toggle}
+          panelFullscreen={panelFullscreen}
+          onToggleFullscreen={toggleFullscreen}
           onSelectView={personalDeck
             ? selectWideView
             : undefined}

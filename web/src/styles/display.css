@@ -297,6 +297,15 @@ body,
   isolation: isolate;
 }
 
+.radar-panel:fullscreen,
+.radar-panel:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: #020609;
+}
+
 .radar-panel.is-following {
   border-color: rgba(117, 244, 189, 0.48);
   box-shadow: inset 0 0 32px rgba(117, 244, 189, 0.035);

@@ -42,11 +42,13 @@ const ISS_TIME = new Intl.DateTimeFormat("en-AU", {
 
 interface FlightDeckProps {
   canvasRef: RefObject<HTMLCanvasElement>;
+  radarPanelRef: RefObject<HTMLElement>;
   state: StreamState;
   view: DeckView;
   selectedHex: string | null;
   autoSwitching: boolean;
   fullscreenActive: boolean;
+  panelFullscreen: boolean;
   onToggleFullscreen: () => void;
   onSelectView?: (view: WideDeckView) => void;
   onSelectAircraft?: (hex: string) => void;
@@ -104,11 +106,13 @@ function observedTime(observedAt: string): string {
 
 export function FlightDeck({
   canvasRef,
+  radarPanelRef,
   state,
   view,
   selectedHex,
   autoSwitching,
   fullscreenActive,
+  panelFullscreen,
   onToggleFullscreen,
   onSelectView,
   onSelectAircraft,
@@ -183,6 +187,7 @@ export function FlightDeck({
 
       <main className="deck-main-grid">
         <section
+          ref={radarPanelRef}
           className={`radar-panel${onCanvasClick ? " is-interactive" : ""}${isFollowing ? " is-following" : ""}`}
           aria-label={view === "overhead"
             ? "Looking-up overhead sky view"
@@ -246,10 +251,18 @@ export function FlightDeck({
               <button
                 type="button"
                 className={`expand-button ${fullscreenActive ? "is-active" : ""}`}
-                aria-label={fullscreenActive ? "Exit full screen" : "Expand flight deck to full screen"}
+                aria-label={fullscreenActive
+                  ? "Exit full screen"
+                  : panelFullscreen
+                    ? "Expand radar panel to full screen"
+                    : "Expand flight deck to full screen"}
                 aria-pressed={fullscreenActive}
                 onClick={onToggleFullscreen}
-                title={fullscreenActive ? "Exit full screen (f)" : "Expand to full screen and keep the display awake (f)"}
+                title={fullscreenActive
+                  ? "Exit full screen (f)"
+                  : panelFullscreen
+                    ? "Expand the radar panel to full screen and keep the display awake (f)"
+                    : "Expand to full screen and keep the display awake (f)"}
               >
                 <i aria-hidden="true">{fullscreenActive ? "↙" : "↗"}</i>
                 {fullscreenActive ? "Exit" : "Expand"}

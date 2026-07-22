@@ -29,6 +29,12 @@ export function projectorRequested(): boolean {
   return requestedKiosk() === "2";
 }
 
+/** The explicit Melbourne dashboard URL fullscreens only its primary panel. */
+export function kioskPanelFullscreenRequested(search?: string): boolean {
+  const query = search ?? (typeof window === "undefined" ? "" : window.location.search);
+  return new URLSearchParams(query).get("kiosk") === "1";
+}
+
 type FsElement = HTMLElement & {
   webkitRequestFullscreen?: () => Promise<void> | void;
 };
@@ -42,8 +48,8 @@ function fullscreenElement(): Element | null {
   return document.fullscreenElement ?? d.webkitFullscreenElement ?? null;
 }
 
-async function requestFullscreen(): Promise<void> {
-  const el = document.documentElement as FsElement;
+async function requestFullscreen(target?: HTMLElement | null): Promise<void> {
+  const el = (target ?? document.documentElement) as FsElement;
   try {
     if (el.requestFullscreen) await el.requestFullscreen();
     else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
@@ -69,9 +75,9 @@ export interface AmbientMode {
   fullscreen: boolean;
   /** True if the Screen Wake Lock is currently held. */
   wakeLocked: boolean;
-  enter: () => Promise<void>;
+  enter: (target?: HTMLElement | null) => Promise<void>;
   exit: () => Promise<void>;
-  toggle: () => void;
+  toggle: (target?: HTMLElement | null) => void;
 }
 
 export function useAmbientMode(): AmbientMode {
@@ -113,10 +119,10 @@ export function useAmbientMode(): AmbientMode {
     }
   }, []);
 
-  const enter = useCallback(async () => {
+  const enter = useCallback(async (target?: HTMLElement | null) => {
     wantLockRef.current = true;
     setActive(true);
-    await Promise.all([requestFullscreen(), acquireLock()]);
+    await Promise.all([requestFullscreen(target), acquireLock()]);
     setFullscreen(!!fullscreenElement());
   }, [acquireLock]);
 
@@ -127,9 +133,9 @@ export function useAmbientMode(): AmbientMode {
     setFullscreen(false);
   }, [releaseLock]);
 
-  const toggle = useCallback(() => {
+  const toggle = useCallback((target?: HTMLElement | null) => {
     if (fullscreen) void exit();
-    else void enter();
+    else void enter(target);
   }, [enter, exit, fullscreen]);
 
   // Re-acquire the wake lock when the page becomes visible again — the browser
