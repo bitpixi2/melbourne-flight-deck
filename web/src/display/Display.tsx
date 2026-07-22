@@ -282,7 +282,7 @@ export function Display() {
 
   const cfg = displayConfig;
   return (
-    <div className={`display-root${projectorMode ? " projector-mode" : ""}`}>
+    <div className={`display-root${projectorMode ? ` projector-mode${ambient.fullscreen ? " is-fullscreen" : ""}` : ""}`}>
       {projectorMode ? (
         <>
           <canvas
