@@ -342,6 +342,9 @@ export interface Config {
   starMagLimit: number;
   /** Faintest star magnitude to label with its name (higher = more names). */
   starLabelMagLimit: number;
+  /** Star-name colour and opacity, independently tunable for projectors. */
+  starLabelColor: string;
+  starLabelOpacity: number;
   /** Offset the sky clock for testing/scrubbing, minutes (0 = live). */
   skyTimeOffsetMin: number;
 
@@ -439,6 +442,8 @@ export const DEFAULT_CONFIG: Config = {
   constellations: Object.fromEntries(CONSTELLATIONS.map((c) => [c.id, true])),
   starMagLimit: 2.6,
   starLabelMagLimit: 0.3,
+  starLabelColor: "#AEB6C6",
+  starLabelOpacity: 0.5,
   skyTimeOffsetMin: 0,
 
   showDestArc: true,

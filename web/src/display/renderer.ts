@@ -931,9 +931,9 @@ export class Renderer {
           skyLabels.push({
             p,
             name: s.name,
-            color: "#C9D0DC",
+            color: cfg.starLabelColor,
             size,
-            alpha: 0.64 * b,
+            alpha: cfg.starLabelOpacity * b,
             priority: mag,
           });
         }

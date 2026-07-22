@@ -25,6 +25,8 @@ export const PROJECTOR_SKY_CONFIG: Config = {
   showMoon: true,
   showSatellites: true,
   showPlanets: true,
+  starLabelColor: "#C9D0DC",
+  starLabelOpacity: 0.64,
   showDestArc: false,
   showRouteDetail: false,
   glyphSizePx: 32,
